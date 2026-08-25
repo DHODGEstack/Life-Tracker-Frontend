@@ -1,0 +1,2137 @@
+<div id="app">
+<style>
+  #app {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    color: #1f2430;
+    padding: 4px;
+  }
+  h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 22px 0 8px; }
+  .sub { color: #6b7280; font-size: 0.85rem; margin-bottom: 14px; }
+  .card {
+    background: #f7f7f9;
+    border: 1px solid #e5e5ea;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  label { font-size: 0.78rem; color: #555; display: block; margin-bottom: 3px; }
+  input[type=number], input[type=text], input[type=date], select {
+    width: 100%; box-sizing: border-box; padding: 6px 8px;
+    border: 1px solid #d1d1d6; border-radius: 8px; font-size: 0.95rem;
+  }
+  .stat-row { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 0; }
+  .stat-label { color: #555; font-size: 0.85rem; }
+  .stat-value { font-weight: 600; font-size: 1rem; }
+  .big { font-size: 1.6rem; font-weight: 700; }
+  .good { color: #1a7f37; } .bad { color: #c62828; } .neutral { color: #b8860b; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: right; padding: 6px 4px; border-bottom: 1px solid #eee; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: #6b7280; font-weight: 600; font-size: 0.75rem; }
+  tr.milestone td { background: #fff7e0; font-weight: 600; }
+  .status-pill { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 600; }
+  .pill-good { background: #e6f4ea; color: #1a7f37; }
+  .pill-bad { background: #fdecea; color: #c62828; }
+  .pill-neutral { background: #fff4e0; color: #8a6100; }
+  canvas { width: 100%; height: 200px; display: block; }
+  .reset-btn { background: none; border: 1px solid #d1d1d6; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; }
+  .note { font-size: 0.78rem; color: #6b7280; margin-top: 6px; }
+  .banner { border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .banner.ok { background: #e6f4ea; color: #1a7f37; }
+  .banner.warn { background: #fff4e0; color: #8a6100; }
+  .banner.bad { background: #fdecea; color: #c62828; }
+  .banner.neutral { background: #eef1f8; color: #3b4a6b; }
+  .cat-tag { display: inline-block; font-size: 0.68rem; font-weight: 600; padding: 1px 7px; border-radius: 8px; margin-right: 6px; white-space: nowrap; }
+  .cat-flights { background: #e0edff; color: #1d4ed8; }
+  .cat-accommodation { background: #f3e8ff; color: #7e22ce; }
+  .cat-food { background: #fef3c7; color: #92400e; }
+  .cat-tickets { background: #ffe4e6; color: #be123c; }
+  .cat-shopping { background: #dcfce7; color: #166534; }
+  .cat-other { background: #e5e7eb; color: #374151; }
+  .cat-strength { background: #dbeafe; color: #1e40af; }
+  .cat-hyrox { background: #ffedd5; color: #9a3412; }
+  .cat-rest { background: #e5e7eb; color: #374151; }
+  .cat-hd { background: #dcfce7; color: #166534; }
+  .cat-d { background: #dbeafe; color: #1e40af; }
+  .cat-c { background: #fef3c7; color: #92400e; }
+  .cat-p { background: #ffedd5; color: #9a3412; }
+  .cat-n { background: #fdecea; color: #c62828; }
+  .cat-overdue { background: #fdecea; color: #c62828; }
+  .cat-duesoon { background: #fff4e0; color: #8a6100; }
+  .cat-upcoming { background: #e5e7eb; color: #374151; }
+  .cat-submitted { background: #dcfce7; color: #166534; }
+  .expense-meta { font-size: 0.72rem; color: #9ca3af; margin-top: 1px; }
+  .cat-breakdown { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+  .cat-chip { font-size: 0.72rem; padding: 3px 9px; border-radius: 999px; background: #f0f1f5; color: #444; }
+  .expense-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 0.88rem; gap: 8px; }
+  .expense-row .desc { flex: 1; }
+  .expense-row .amt { font-weight: 600; white-space: nowrap; }
+  .del-btn { border: none; background: none; color: #b0b0b8; cursor: pointer; font-size: 0.9rem; padding: 0 4px; }
+  .add-expense-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .add-expense-row button { background: #4c6ef5; color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 0.85rem; cursor: pointer; }
+  .tab-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tab-btn { border: 1px solid #d1d1d6; background: #fff; border-radius: 999px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; color: #333; }
+  .tab-btn.active { background: #4c6ef5; border-color: #4c6ef5; color: #fff; }
+  .progress-track { width: 100%; height: 10px; background: #e9e9ef; border-radius: 6px; overflow: hidden; margin: 8px 0; }
+  .progress-fill { height: 100%; background: #4c6ef5; transition: width 0.2s; }
+  .progress-fill.over { background: #c62828; }
+
+  /* Top-level nav */
+  .nav-row { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid #e5e5ea; padding-bottom: 10px; }
+  .nav-btn {
+    border: none; background: none; padding: 8px 4px; font-size: 0.95rem; font-weight: 600;
+    color: #9aa0ac; cursor: pointer; border-bottom: 2px solid transparent;
+  }
+  .nav-btn.active { color: #1f2430; border-bottom: 2px solid #4c6ef5; }
+  .pane { display: none; }
+  .pane.active { display: block; }
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dash-tile {
+    background: #fff; border: 1px solid #e5e5ea; border-radius: 10px; padding: 12px;
+  }
+  .dash-tile .label { font-size: 0.72rem; color: #6b7280; margin-bottom: 4px; }
+  .dash-tile .val { font-size: 1.15rem; font-weight: 700; }
+  .pr-badge { background: #fff4e0; color: #8a6100; font-size: 0.7rem; padding: 2px 7px; border-radius: 8px; font-weight: 700; margin-left: 6px; }
+</style>
+
+<h1>📋 Life Tracker</h1>
+<div class="sub">Starting 18 Aug 2026 — budget and training in one place.</div>
+
+<div class="nav-row" id="mainNav"></div>
+<div id="backendSetupBanner" class="banner" style="display:none;"></div>
+
+<!-- DASHBOARD PANE -->
+<div class="pane" id="pane-dashboard">
+  <div id="reminderBanner" class="banner"></div>
+  <div class="card">
+    <h2 style="margin-top:0">Overview</h2>
+    <div class="dash-grid" id="dashGrid"></div>
+  </div>
+</div>
+
+<!-- BUDGET PANE -->
+<div class="pane" id="pane-budget">
+  <div id="quickLogCard" class="card"></div>
+
+  <div class="card" id="summaryCard"></div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Trip expenses</h2>
+    <div class="note" style="margin-top:-4px; margin-bottom:10px;">Log what you've actually spent against each trip's budget.</div>
+    <div id="tripTabs" class="tab-row"></div>
+    <div id="tripExpenseBody"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Target vs actual savings</h2>
+    <canvas id="chart"></canvas>
+    <div class="note">Solid blue = target. Green dots = gross saved. Red dashed = net after spending.</div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Budget inputs</h2>
+    <div class="grid">
+      <div><label>Starting balance ($)</label><input type="number" id="startBalance" value="4000"></div>
+      <div><label>Japan shopping ($)</label><input type="number" id="costJapan" value="750"></div>
+      <div><label>Malaysia spend ($)</label><input type="number" id="costMalaysia" value="300"></div>
+      <div><label>BTV ($)</label><input type="number" id="costBTV" value="830"></div>
+      <div><label>USA trip ($)</label><input type="number" id="costUSA" value="9810"></div>
+      <div><label>Hyrox Brisbane ($)</label><input type="number" id="costHyrox" value="960"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin-top:0">Weekly savings log</h2>
+      <button class="reset-btn" id="resetBtn">Reset log</button>
+    </div>
+    <div style="max-height:420px; overflow-y:auto;">
+      <table id="weekTable"></table>
+    </div>
+  </div>
+</div>
+
+<!-- TRAINING PANE -->
+<div class="pane" id="pane-training">
+  <div id="trainingReminderBanner" class="banner"></div>
+  <div class="card" id="trainingHeaderCard"></div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Log a session</h2>
+    <div class="grid">
+      <div><label>Date</label><input type="date" id="sessionDate"></div>
+    </div>
+    <div class="tab-row" id="sessionTypeTabs" style="margin-top:10px;"></div>
+
+    <!-- TRAINING MODE -->
+    <div id="trainingModeBody">
+      <div class="add-expense-row" style="margin-bottom:10px;">
+        <select id="templateSelect" style="flex:2;"><option value="">Load a template…</option></select>
+        <button class="reset-btn" id="loadTemplateBtn">Load</button>
+        <button class="reset-btn" id="saveTemplateBtn">Save current as template</button>
+      </div>
+      <hr style="border:none; border-top:1px solid #e5e5ea; margin:10px 0;">
+      <div class="grid">
+        <div>
+          <label>Category</label>
+          <select id="liftCategory">
+            <option value="strength">Strength</option>
+            <option value="hyrox">Hyrox station</option>
+          </select>
+        </div>
+        <div>
+          <label>Exercise</label>
+          <input type="text" id="liftExercise" list="exerciseOptions" placeholder="Pick or type a new one">
+          <datalist id="exerciseOptions"></datalist>
+        </div>
+      </div>
+      <div class="grid" style="margin-top:10px;" id="liftMetricFields"></div>
+      <div class="note" id="compareNote"></div>
+      <div style="margin-top:10px;">
+        <label>Notes (optional)</label>
+        <input type="text" id="liftNotes" placeholder="e.g. felt strong, last set was grindy">
+      </div>
+      <div class="add-expense-row" style="margin-top:12px;">
+        <button id="addLiftBtn">+ Add exercise to session</button>
+      </div>
+      <div id="pendingSessionList" style="margin-top:14px;"></div>
+      <div class="add-expense-row" style="margin-top:14px;">
+        <button id="saveSessionBtn" style="background:#1a7f37;">Save session</button>
+        <button class="reset-btn" id="clearSessionBtn">Clear</button>
+      </div>
+      <div class="note" id="sessionNote"></div>
+    </div>
+
+    <!-- REST DAY MODE -->
+    <div id="restModeBody" style="display:none;">
+      <div style="margin-top:10px;">
+        <label>Notes (optional)</label>
+        <input type="text" id="restNotes" placeholder="e.g. legs still sore from squats">
+      </div>
+      <div class="add-expense-row" style="margin-top:12px;">
+        <button id="saveRestBtn" style="background:#1a7f37;">Log rest day</button>
+      </div>
+    </div>
+
+    <!-- RACE SIMULATION MODE -->
+    <div id="raceSimModeBody" style="display:none;">
+      <div class="note" style="margin:8px 0;">Enter your time for each station and your total running time (8x1km combined). Leave any blank if you skipped it.</div>
+      <div class="grid" id="raceSimFields"></div>
+      <div class="add-expense-row" style="margin-top:12px;">
+        <button id="saveRaceSimBtn" style="background:#1a7f37;">Save race simulation</button>
+      </div>
+      <div class="note" id="raceSimNote"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Progress</h2>
+    <div>
+      <label>Exercise</label>
+      <select id="progressExercise"></select>
+    </div>
+    <canvas id="liftChart"></canvas>
+    <div class="note" id="liftChartNote"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin-top:0">Session history</h2>
+      <button class="reset-btn" id="resetLiftBtn">Reset log</button>
+    </div>
+    <div id="liftHistory" style="max-height:420px; overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- NUTRITION PANE -->
+<div class="pane" id="pane-nutrition">
+  <div class="card" id="tomorrowTargetCard"></div>
+  <div class="card" id="nutritionSummaryCard"></div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Log today's meals</h2>
+    <div class="grid">
+      <div><label>Date</label><input type="date" id="mealDate"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div><label>Breakfast</label><input type="text" id="mealBreakfastDesc" placeholder="e.g. oats + banana"></div>
+      <div><label>Calories (approx)</label><input type="number" id="mealBreakfastCals" placeholder="e.g. 400"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div><label>Lunch 1</label><input type="text" id="mealLunch1Desc" placeholder="e.g. chicken wrap"></div>
+      <div><label>Calories (approx)</label><input type="number" id="mealLunch1Cals" placeholder="e.g. 550"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div><label>Lunch 2</label><input type="text" id="mealLunch2Desc" placeholder="e.g. protein shake + snack"></div>
+      <div><label>Calories (approx)</label><input type="number" id="mealLunch2Cals" placeholder="e.g. 300"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div><label>Dinner</label><input type="text" id="mealDinnerDesc" placeholder="e.g. rice + beef stir fry"></div>
+      <div><label>Calories (approx)</label><input type="number" id="mealDinnerCals" placeholder="e.g. 700"></div>
+    </div>
+    <div class="add-expense-row" style="margin-top:12px;">
+      <button id="saveMealsBtn">Save day</button>
+    </div>
+    <div class="note" id="mealsNote">Pick a date above with existing meals logged to edit that day.</div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Meal history</h2>
+    <div id="mealHistory" style="max-height:420px; overflow-y:auto;"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Weight goal & suggested calories</h2>
+    <div class="grid">
+      <div><label>Starting weight (kg)</label><input type="number" id="goalStartWeight" value="83"></div>
+      <div><label>Target weight (kg)</label><input type="number" id="goalTargetWeight" value="87"></div>
+      <div><label>Height (cm)</label><input type="number" id="goalHeight" value="175"></div>
+      <div>
+        <label>Activity level</label>
+        <select id="goalActivity">
+          <option value="1.2">Sedentary</option>
+          <option value="1.375">Light (1-3x/week)</option>
+          <option value="1.55">Moderate (3-5x/week)</option>
+          <option value="1.725" selected>Very active (6-9x/week, like your current plan)</option>
+          <option value="1.9">Extremely active</option>
+        </select>
+      </div>
+    </div>
+    <div class="note" style="margin-top:6px;">Target date is your Japan trip. Age assumed 18. Adjust height/activity for a more accurate number.</div>
+    <div id="calorieTargetCard" style="margin-top:12px;"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Weight tracker</h2>
+    <div class="add-expense-row">
+      <input type="date" id="weightDate" style="flex:1;">
+      <input type="number" id="weightValue" placeholder="Weight (kg)" style="flex:1;">
+      <button id="addWeightBtn">Log weight</button>
+    </div>
+    <canvas id="weightChart" style="margin-top:10px;"></canvas>
+    <div class="note" id="weightChartNote"></div>
+    <div id="weightHistory" style="max-height:300px; overflow-y:auto; margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- UNI PANE -->
+<div class="pane" id="pane-uni">
+  <div id="uniReminderBanner" class="banner"></div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Add assignment</h2>
+    <div class="grid">
+      <div><label>Unit</label><input type="text" id="assignUnit" list="unitOptions" placeholder="e.g. FIT2004"></div>
+      <div><label>Assignment name</label><input type="text" id="assignName" placeholder="e.g. Assignment 2"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div><label>Due date</label><input type="date" id="assignDue"></div>
+      <div><label>Weight % (optional)</label><input type="number" id="assignWeight" placeholder="e.g. 20"></div>
+    </div>
+    <div style="margin-top:10px;">
+      <label>Notes (optional)</label>
+      <input type="text" id="assignNotes" placeholder="e.g. group assignment, submit via Moodle">
+    </div>
+    <div class="add-expense-row" style="margin-top:12px;"><button id="addAssignBtn">Add assignment</button></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Deadlines</h2>
+    <div id="assignHistory" style="max-height:420px; overflow-y:auto;"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Add class to timetable</h2>
+    <div class="grid">
+      <div><label>Unit</label><input type="text" id="ttUnit" list="unitOptions" placeholder="e.g. FIT2004"></div>
+      <div>
+        <label>Day</label>
+        <select id="ttDay">
+          <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+          <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div><label>Start time</label><input type="time" id="ttStart"></div>
+      <div><label>End time</label><input type="time" id="ttEnd"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div>
+        <label>Type</label>
+        <select id="ttType">
+          <option>Lecture</option><option>Tutorial</option><option>Lab</option><option>Workshop</option><option>Seminar</option><option>Other</option>
+        </select>
+      </div>
+      <div><label>Location (optional)</label><input type="text" id="ttLocation" placeholder="e.g. Building 21, Room G12"></div>
+    </div>
+    <div class="add-expense-row" style="margin-top:12px;"><button id="addTTBtn">Add class</button></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin-top:0">Weekly timetable</h2>
+      <button class="reset-btn" id="resetTTBtn">Reset</button>
+    </div>
+    <div id="timetableView"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Add grade</h2>
+    <div class="grid">
+      <div><label>Unit</label><input type="text" id="gradeUnit" list="unitOptions" placeholder="e.g. FIT2004"></div>
+      <div><label>Assessment</label><input type="text" id="gradeAssessment" placeholder="e.g. Midterm"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div><label>Mark (%)</label><input type="number" id="gradeMark" placeholder="e.g. 78"></div>
+      <div><label>Weight % (optional)</label><input type="number" id="gradeWeight" placeholder="e.g. 30"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div><label>Date</label><input type="date" id="gradeDate"></div>
+    </div>
+    <div class="add-expense-row" style="margin-top:12px;"><button id="addGradeBtn">Add grade</button></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">GPA & unit averages</h2>
+    <div id="gpaSummary"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin-top:0">Grade history</h2>
+      <button class="reset-btn" id="resetGradesBtn">Reset</button>
+    </div>
+    <div id="gradeHistory" style="max-height:420px; overflow-y:auto;"></div>
+  </div>
+
+  <datalist id="unitOptions"></datalist>
+</div>
+
+</div>
+
+<script>
+(function(){
+  // ---------- STORAGE ADAPTER ----------
+  // On claude.ai, window.storage is provided natively. Hosted elsewhere, it
+  // won't exist — in that case we fall back to a small backend you deploy
+  // yourself (see the life-tracker-backend README). Every other function in
+  // this file just calls storage.get/set/delete and doesn't care which mode
+  // it's actually running in.
+  const CLAUDE_ENV = (typeof window.storage !== 'undefined' && window.storage !== null);
+  const BACKEND_URL_KEY = 'lifeTrackerBackendUrl';
+  const BACKEND_API_KEY_KEY = 'lifeTrackerBackendKey';
+
+  function getBackendConfig() {
+    try {
+      const baseUrl = localStorage.getItem(BACKEND_URL_KEY);
+      const apiKey = localStorage.getItem(BACKEND_API_KEY_KEY);
+      if (baseUrl && apiKey) return { baseUrl, apiKey };
+    } catch (e) {}
+    return null;
+  }
+
+  function setBackendConfig(baseUrl, apiKey) {
+    try {
+      localStorage.setItem(BACKEND_URL_KEY, baseUrl);
+      localStorage.setItem(BACKEND_API_KEY_KEY, apiKey);
+    } catch (e) {}
+  }
+
+  async function backendRequest(method, key, shared, value) {
+    const cfg = getBackendConfig();
+    if (!cfg) throw new Error('Backend not configured');
+    const url = `${cfg.baseUrl.replace(/\/$/, '')}/api/storage/${encodeURIComponent(key)}?shared=${shared ? 'true' : 'false'}`;
+    const opts = { method, headers: { 'x-api-key': cfg.apiKey } };
+    if (method === 'PUT') {
+      opts.headers['Content-Type'] = 'application/json';
+      opts.body = JSON.stringify({ value });
+    }
+    const res = await fetch(url, opts);
+    if (!res.ok) throw new Error(`Backend error ${res.status}`);
+    return await res.json();
+  }
+
+  const backendStorage = {
+    async get(key, shared = false) { return await backendRequest('GET', key, shared); },
+    async set(key, value, shared = false) { return await backendRequest('PUT', key, shared, value); },
+    async delete(key, shared = false) { return await backendRequest('DELETE', key, shared); },
+  };
+
+  const storage = CLAUDE_ENV ? window.storage : backendStorage;
+
+  function promptBackendSetup() {
+    const existing = getBackendConfig() || {};
+    const baseUrl = prompt('Backend URL (e.g. https://your-app.onrender.com):', existing.baseUrl || '');
+    if (!baseUrl) return;
+    const apiKey = prompt('API key (the one from your .env file):', existing.apiKey || '');
+    if (!apiKey) return;
+    setBackendConfig(baseUrl.trim(), apiKey.trim());
+    location.reload();
+  }
+
+  function renderBackendBanner() {
+    const el = document.getElementById('backendSetupBanner');
+    if (!el) return;
+    if (CLAUDE_ENV) { el.style.display = 'none'; return; }
+    el.style.display = 'flex';
+    const cfg = getBackendConfig();
+    if (cfg) {
+      el.className = 'banner ok';
+      el.innerHTML = `✅ Connected to your backend (${cfg.baseUrl}). <button class="reset-btn" id="changeBackendBtn" style="margin-left:8px;">Change</button>`;
+    } else {
+      el.className = 'banner warn';
+      el.innerHTML = `⚠️ Not connected to a backend yet — nothing you log will be saved until you set one up. <button class="reset-btn" id="setupBackendBtn" style="margin-left:8px;">Set up now</button>`;
+    }
+    const setupBtn = document.getElementById('setupBackendBtn');
+    if (setupBtn) setupBtn.addEventListener('click', promptBackendSetup);
+    const changeBtn = document.getElementById('changeBackendBtn');
+    if (changeBtn) changeBtn.addEventListener('click', promptBackendSetup);
+  }
+
+  const START_DATE = new Date('2026-08-18T00:00:00');
+  const MILESTONES = [
+    { key: 'japan', label: 'Japan', week: 13 },
+    { key: 'malaysia', label: 'Malaysia', week: 16 },
+    { key: 'btv', label: 'BTV', week: 19 },
+    { key: 'usa', label: 'USA trip', week: 24 },
+    { key: 'hyrox', label: 'Hyrox Brisbane', week: 32 },
+  ];
+  const TOTAL_WEEKS = 32;
+  const STORAGE_KEY = 'trip-savings-log-v1';
+  const EXPENSE_KEY = 'trip-expenses-v1';
+  const LIFT_KEY = 'lift-log-v1';
+  const CUSTOM_EX_KEY = 'lift-custom-exercises-v1';
+  const TEMPLATE_KEY = 'lift-templates-v1';
+  const MEALS_KEY = 'nutrition-meals-v1';
+  const WEIGHT_KEY = 'weight-log-v1';
+  const WEIGHT_GOAL_KEY = 'weight-goal-v1';
+  const ASSIGN_KEY = 'uni-assignments-v1';
+  const TIMETABLE_KEY = 'uni-timetable-v1';
+  const GRADES_KEY = 'uni-grades-v1';
+  const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const MEAL_SLOTS = [
+    { key: 'breakfast', label: 'Breakfast' },
+    { key: 'lunch1', label: 'Lunch 1' },
+    { key: 'lunch2', label: 'Lunch 2' },
+    { key: 'dinner', label: 'Dinner' },
+  ];
+  const TRIPS = [
+    { key: 'japan', label: 'Japan' },
+    { key: 'malaysia', label: 'Malaysia' },
+    { key: 'btv', label: 'BTV' },
+    { key: 'usa', label: 'USA' },
+    { key: 'hyrox', label: 'Hyrox' },
+  ];
+
+  const STRENGTH_EXERCISES = ['Back Squat', 'Deadlift', 'Bench Press', 'Overhead Press', 'Barbell Row', 'Pull-up', 'Front Squat'];
+  const HYROX_EXERCISES = ['SkiErg (1000m)', 'Sled Push (50m)', 'Sled Pull (50m)', 'Burpee Broad Jumps (80m)', 'Rowing (1000m)', 'Farmers Carry (200m)', 'Sandbag Lunges (100m)', 'Wall Balls (75 reps)', 'Run (1km)'];
+  const RACE_STATIONS = ['SkiErg (1000m)', 'Sled Push (50m)', 'Sled Pull (50m)', 'Burpee Broad Jumps (80m)', 'Rowing (1000m)', 'Farmers Carry (200m)', 'Sandbag Lunges (100m)', 'Wall Balls (75 reps)'];
+  const TOTAL_RUN_LABEL = 'Total Run (8km)';
+  const WEEKLY_TARGET = { strength: 6, hyrox: 3 };
+
+  let actuals = {};
+  let expenses = { japan: [], malaysia: [], btv: [], usa: [], hyrox: [] };
+  let lifts = [];
+  let customExercises = { strength: [], hyrox: [] };
+  let pendingSession = [];
+  let templates = [];
+  let templateQueue = [];
+  let sessionType = 'training';
+  let meals = {};
+  let weights = [];
+  let assignments = [];
+  let timetable = [];
+  let grades = [];
+  let activeTrip = 'japan';
+  let activeNav = 'dashboard';
+  let progressExerciseSel = null;
+
+  function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+  function weekDate(w) {
+    const d = new Date(START_DATE.getTime() + w * 7 * 24 * 60 * 60 * 1000);
+    return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function formatDisplayDate(iso) {
+    try {
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch (e) { return iso; }
+  }
+
+  function currentWeekNumber() {
+    const diffMs = Date.now() - START_DATE.getTime();
+    return Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000));
+  }
+
+  // ---------- NAV ----------
+  function renderNav() {
+    const navs = [
+      { key: 'dashboard', label: '🏠 Dashboard' },
+      { key: 'budget', label: '💰 Budget' },
+      { key: 'training', label: '🏋️ Training' },
+      { key: 'nutrition', label: '🍎 Nutrition' },
+      { key: 'uni', label: '🎓 Uni' },
+    ];
+    document.getElementById('mainNav').innerHTML = navs.map(n =>
+      `<button class="nav-btn ${n.key === activeNav ? 'active' : ''}" data-nav="${n.key}">${n.label}</button>`
+    ).join('');
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeNav = btn.dataset.nav;
+        renderNav();
+        document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+        document.getElementById('pane-' + activeNav).classList.add('active');
+        if (activeNav === 'training') renderLiftChart();
+        if (activeNav === 'budget') renderChart(computePlan());
+        if (activeNav === 'nutrition') renderWeightChart();
+      });
+    });
+  }
+
+  // ---------- BUDGET LOGIC ----------
+  function getCosts() {
+    return {
+      japan: Number(document.getElementById('costJapan').value) || 0,
+      malaysia: Number(document.getElementById('costMalaysia').value) || 0,
+      btv: Number(document.getElementById('costBTV').value) || 0,
+      usa: Number(document.getElementById('costUSA').value) || 0,
+      hyrox: Number(document.getElementById('costHyrox').value) || 0,
+    };
+  }
+
+  function computePlan() {
+    const start = Number(document.getElementById('startBalance').value) || 0;
+    const costs = getCosts();
+    let cumulative = 0;
+    const cumByMilestone = {};
+    MILESTONES.forEach(m => { cumulative += costs[m.key]; cumByMilestone[m.key] = cumulative; });
+    const total = cumulative;
+    const extraNeeded = {};
+    MILESTONES.forEach(m => { extraNeeded[m.key] = Math.max(0, cumByMilestone[m.key] - start); });
+    const usaExtra = extraNeeded['usa'];
+    const usaWeek = MILESTONES.find(m => m.key === 'usa').week;
+    const finalExtra = extraNeeded['hyrox'];
+    const finalWeek = MILESTONES.find(m => m.key === 'hyrox').week;
+    const rate1 = usaWeek > 0 ? usaExtra / usaWeek : 0;
+    const remaining = Math.max(0, finalExtra - usaExtra);
+    const weeksLeft = Math.max(1, finalWeek - usaWeek);
+    const rate2 = remaining / weeksLeft;
+    function targetAt(week) {
+      if (week <= usaWeek) return rate1 * week;
+      return usaExtra + rate2 * (week - usaWeek);
+    }
+    return { start, costs, total, extraNeeded, cumByMilestone, rate1, rate2, usaWeek, finalWeek, targetAt };
+  }
+
+  function tripBudget(key) { return getCosts()[key] || 0; }
+  function tripSpent(key) { return (expenses[key] || []).reduce((s, e) => s + (Number(e.amount) || 0), 0); }
+  function totalSpentAllTrips() { return TRIPS.reduce((s, t) => s + tripSpent(t.key), 0); }
+  function cumActualSavings() {
+    let cum = 0;
+    for (let w = 1; w <= TOTAL_WEEKS; w++) cum += Number(actuals[w]) || 0;
+    return cum;
+  }
+
+  function renderQuickLog() {
+    const el = document.getElementById('quickLogCard');
+    const nowWeek = Math.max(1, Math.min(TOTAL_WEEKS, currentWeekNumber() + 1));
+    const existing = actuals[nowWeek];
+    const rangeStart = weekDate(nowWeek - 1);
+    const rangeEnd = weekDate(nowWeek);
+    el.innerHTML = `
+      <div class="stat-row" style="margin-bottom:2px;"><span class="stat-label">This week — Week ${nowWeek} (${rangeStart} → ${rangeEnd})</span></div>
+      <div class="add-expense-row">
+        <input type="number" id="quickLogAmt" placeholder="Amount saved this week" value="${existing !== undefined ? existing : ''}" style="flex:2;">
+        <button id="quickLogBtn">${existing !== undefined ? 'Update' : 'Save'}</button>
+      </div>`;
+    document.getElementById('quickLogBtn').addEventListener('click', async () => {
+      const val = Number(document.getElementById('quickLogAmt').value);
+      if (!val && val !== 0) return;
+      actuals[nowWeek] = val;
+      await saveActuals();
+      renderAll();
+    });
+  }
+
+  function renderReminderBanner() {
+    const el = document.getElementById('reminderBanner');
+    const loggedWeeks = Object.keys(actuals).map(Number);
+    const nowWeek = currentWeekNumber() + 1;
+    if (loggedWeeks.length === 0) {
+      el.className = 'banner neutral';
+      el.innerHTML = `👋 No savings logged yet — add this week's amount on the Budget tab to get started.`;
+      return;
+    }
+    const lastLoggedWeek = Math.max(...loggedWeeks);
+    const weeksSince = Math.max(0, nowWeek - lastLoggedWeek);
+    if (weeksSince === 0) {
+      el.className = 'banner ok';
+      el.innerHTML = `✅ Up to date — you've logged this week's savings.`;
+    } else if (weeksSince === 1) {
+      el.className = 'banner warn';
+      el.innerHTML = `⏰ It's been 1 week since your last savings entry (week ${lastLoggedWeek}) — log this week's savings when you can.`;
+    } else {
+      el.className = 'banner bad';
+      el.innerHTML = `⚠️ It's been ${weeksSince} weeks since your last savings entry (week ${lastLoggedWeek}) — catch it up when you get a chance.`;
+    }
+  }
+
+  function renderSummary(plan) {
+    const totalNeeded = Math.max(0, plan.total - plan.start);
+    const totalSpent = totalSpentAllTrips();
+    const savedSoFar = cumActualSavings();
+    const netAvailable = plan.start + savedSoFar - totalSpent;
+    const stillToFind = Math.max(0, plan.total - netAvailable);
+    const el = document.getElementById('summaryCard');
+    el.innerHTML = `
+      <h2 style="margin-top:0">Summary</h2>
+      <div class="stat-row"><span class="stat-label">Total across all 5 trips</span><span class="stat-value">${fmt(plan.total)}</span></div>
+      <div class="stat-row"><span class="stat-label">Starting balance</span><span class="stat-value">${fmt(plan.start)}</span></div>
+      <div class="stat-row"><span class="stat-label">Extra you need to save</span><span class="big">${fmt(totalNeeded)}</span></div>
+      <div class="stat-row"><span class="stat-label">Required pace until USA trip (week ${plan.usaWeek})</span><span class="stat-value">${fmt(plan.rate1)}/week</span></div>
+      <div class="stat-row"><span class="stat-label">Required pace after USA, until Hyrox (week ${plan.finalWeek})</span><span class="stat-value">${fmt(plan.rate2)}/week</span></div>
+      <hr style="border:none; border-top:1px solid #e5e5ea; margin:10px 0;">
+      <div class="stat-row"><span class="stat-label">Logged savings so far</span><span class="stat-value good">+${fmt(savedSoFar)}</span></div>
+      <div class="stat-row"><span class="stat-label">Logged spending so far (all trips)</span><span class="stat-value bad">-${fmt(totalSpent)}</span></div>
+      <div class="stat-row"><span class="stat-label">Net funds available now</span><span class="big">${fmt(netAvailable)}</span></div>
+      <div class="stat-row"><span class="stat-label">Still to find before Hyrox</span><span class="stat-value ${stillToFind > 0 ? 'bad' : 'good'}">${fmt(stillToFind)}</span></div>
+    `;
+  }
+
+  function renderExpenseTabs() {
+    const tabRow = document.getElementById('tripTabs');
+    tabRow.innerHTML = TRIPS.map(t => {
+      const spent = tripSpent(t.key);
+      const budget = tripBudget(t.key);
+      const over = spent > budget;
+      return `<button class="tab-btn ${t.key === activeTrip ? 'active' : ''}" data-trip="${t.key}">${t.label}${over ? ' ⚠️' : ''}</button>`;
+    }).join('');
+    tabRow.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => { activeTrip = btn.dataset.trip; renderExpenses(); });
+    });
+  }
+
+  function renderExpenseBody() {
+    const body = document.getElementById('tripExpenseBody');
+    const trip = TRIPS.find(t => t.key === activeTrip);
+    const budget = tripBudget(activeTrip);
+    const spent = tripSpent(activeTrip);
+    const remaining = budget - spent;
+    const pct = budget > 0 ? Math.min(100, (spent / budget) * 100) : 0;
+    const over = spent > budget;
+
+    const list = (expenses[activeTrip] || []).slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).map(e => `
+      <div class="expense-row">
+        <span class="desc">
+          <span class="cat-tag cat-${(e.category || 'other').toLowerCase()}">${e.category || 'Other'}</span>
+          ${e.desc}
+          <div class="expense-meta">${e.date ? formatDisplayDate(e.date) : ''}</div>
+        </span>
+        <span class="amt">${fmt(e.amount)}</span>
+        <button class="del-btn" data-id="${e.id}" title="Remove">✕</button>
+      </div>`).join('') || '<div class="note">No expenses logged yet for this trip.</div>';
+
+    const catTotals = {};
+    (expenses[activeTrip] || []).forEach(e => {
+      const c = e.category || 'Other';
+      catTotals[c] = (catTotals[c] || 0) + (Number(e.amount) || 0);
+    });
+    const catBreakdown = Object.keys(catTotals).length ? `<div class="cat-breakdown">${Object.entries(catTotals).map(([c, v]) => `<span class="cat-chip">${c}: ${fmt(v)}</span>`).join('')}</div>` : '';
+
+    body.innerHTML = `
+      <div class="stat-row"><span class="stat-label">${trip.label} budget</span><span class="stat-value">${fmt(budget)}</span></div>
+      <div class="stat-row"><span class="stat-label">Spent so far</span><span class="stat-value">${fmt(spent)}</span></div>
+      <div class="progress-track"><div class="progress-fill ${over ? 'over' : ''}" style="width:${pct}%"></div></div>
+      <div class="stat-row"><span class="stat-label">${over ? 'Over budget by' : 'Remaining'}</span><span class="stat-value ${over ? 'bad' : 'good'}">${fmt(Math.abs(remaining))}</span></div>
+      ${catBreakdown}
+      <div style="margin-top:12px;">${list}</div>
+      <div class="add-expense-row">
+        <input type="text" id="newExpenseDesc" placeholder="e.g. NBA ticket deposit" style="flex:2 1 140px;">
+        <select id="newExpenseCategory" style="flex:1 1 100px;">
+          <option value="Flights">Flights</option>
+          <option value="Accommodation">Accommodation</option>
+          <option value="Food">Food</option>
+          <option value="Tickets">Tickets</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Other" selected>Other</option>
+        </select>
+        <input type="number" id="newExpenseAmt" placeholder="Amount" style="flex:1 1 80px;">
+        <input type="date" id="newExpenseDate" style="flex:1 1 130px;">
+        <button id="addExpenseBtn">Add</button>
+      </div>`;
+    document.getElementById('newExpenseDate').value = new Date().toISOString().slice(0, 10);
+
+    body.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        expenses[activeTrip] = expenses[activeTrip].filter(e => String(e.id) !== String(btn.dataset.id));
+        await saveExpenses(); renderExpenses();
+      });
+    });
+    document.getElementById('addExpenseBtn').addEventListener('click', async () => {
+      const desc = document.getElementById('newExpenseDesc').value.trim();
+      const amt = Number(document.getElementById('newExpenseAmt').value);
+      const category = document.getElementById('newExpenseCategory').value;
+      const date = document.getElementById('newExpenseDate').value || new Date().toISOString().slice(0, 10);
+      if (!desc || !amt) return;
+      expenses[activeTrip] = expenses[activeTrip] || [];
+      expenses[activeTrip].push({ id: Date.now(), desc, amount: amt, category, date });
+      await saveExpenses(); renderExpenses();
+    });
+  }
+
+  function renderExpenses() { renderExpenseTabs(); renderExpenseBody(); }
+
+  async function saveExpenses() { try { await storage.set(EXPENSE_KEY, JSON.stringify(expenses), false); } catch (e) { console.error(e); } }
+  async function loadExpenses() {
+    try {
+      const res = await storage.get(EXPENSE_KEY, false);
+      if (res && res.value) { expenses = JSON.parse(res.value); TRIPS.forEach(t => { if (!expenses[t.key]) expenses[t.key] = []; }); }
+    } catch (e) {}
+  }
+
+  function renderTable(plan) {
+    const table = document.getElementById('weekTable');
+    let rows = `<tr><th>Week</th><th>Date</th><th>Target cum.</th><th>Actual saved</th><th>Actual cum.</th><th>Status</th></tr>`;
+    let cumActual = 0;
+    for (let w = 1; w <= TOTAL_WEEKS; w++) {
+      const target = plan.targetAt(w);
+      const actualThisWeek = actuals[w] !== undefined ? actuals[w] : '';
+      if (actuals[w] !== undefined) cumActual += Number(actuals[w]) || 0;
+      const milestone = MILESTONES.find(m => m.week === w);
+      let statusPill = '';
+      if (actuals[w] !== undefined) {
+        const diff = cumActual - target;
+        statusPill = diff >= 0 ? `<span class="status-pill pill-good">on track (+${fmt(diff)})</span>` : `<span class="status-pill pill-bad">behind (${fmt(diff)})</span>`;
+      } else {
+        statusPill = `<span class="status-pill pill-neutral">not logged</span>`;
+      }
+      rows += `<tr${milestone ? ' class="milestone"' : ''}>
+        <td>${w}${milestone ? ' 🏁' : ''}</td>
+        <td>${weekDate(w)}${milestone ? ' — ' + milestone.label : ''}</td>
+        <td>${fmt(target)}</td>
+        <td><input type="number" data-week="${w}" class="week-input" style="width:80px; padding:3px 5px; border:1px solid #d1d1d6; border-radius:6px;" value="${actualThisWeek}" placeholder="—"></td>
+        <td>${fmt(cumActual)}</td>
+        <td>${statusPill}</td>
+      </tr>`;
+    }
+    table.innerHTML = rows;
+    table.querySelectorAll('.week-input').forEach(inp => {
+      inp.addEventListener('change', async (e) => {
+        const w = e.target.dataset.week; const val = e.target.value;
+        if (val === '') delete actuals[w]; else actuals[w] = Number(val);
+        await saveActuals(); renderAll();
+      });
+    });
+  }
+
+  function renderChart(plan) {
+    const canvas = document.getElementById('chart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const cssWidth = canvas.clientWidth || 640;
+    const cssHeight = 215;
+    canvas.width = cssWidth * dpr; canvas.height = cssHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+    const maxY = Math.max(plan.targetAt(TOTAL_WEEKS), cumActualSavings(), 100) * 1.1;
+    const padL = 50, padB = 24, padT = 22, padR = 10;
+    const w = cssWidth - padL - padR, h = cssHeight - padT - padB;
+    function x(week) { return padL + (week / TOTAL_WEEKS) * w; }
+    function y(val) { return padT + h - (val / maxY) * h; }
+    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + h); ctx.lineTo(padL + w, padT + h); ctx.stroke();
+    ctx.fillStyle = '#888'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      const val = (maxY / 4) * i; const yy = y(val);
+      ctx.fillText(fmt(val), padL - 6, yy + 3);
+      ctx.strokeStyle = '#f0f0f0'; ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + w, yy); ctx.stroke();
+    }
+    ctx.fillStyle = '#b8860b'; ctx.textAlign = 'center';
+    MILESTONES.forEach(m => {
+      const xx = x(m.week);
+      ctx.strokeStyle = '#f0d78a'; ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT + h); ctx.stroke();
+      ctx.font = '9px sans-serif'; ctx.fillText(m.label, xx, padT + h + 14);
+    });
+    ctx.strokeStyle = '#4c6ef5'; ctx.lineWidth = 2; ctx.beginPath();
+    for (let wk = 0; wk <= TOTAL_WEEKS; wk++) { const xx = x(wk), yy = y(plan.targetAt(wk)); if (wk === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+    ctx.stroke();
+    ctx.fillStyle = '#1a7f37'; let cum = 0;
+    for (let wk = 1; wk <= TOTAL_WEEKS; wk++) {
+      if (actuals[wk] !== undefined) { cum += Number(actuals[wk]) || 0; const xx = x(wk), yy = y(cum); ctx.beginPath(); ctx.arc(xx, yy, 3, 0, Math.PI * 2); ctx.fill(); }
+    }
+    const totalSpent = totalSpentAllTrips();
+    if (totalSpent > 0) {
+      const loggedWeeks = Object.keys(actuals).map(Number).sort((a, b) => a - b);
+      const lastWeek = loggedWeeks.length ? loggedWeeks[loggedWeeks.length - 1] : 0;
+      ctx.strokeStyle = '#c62828'; ctx.setLineDash([4, 3]); ctx.lineWidth = 2; ctx.beginPath();
+      let cum2 = 0, started = false;
+      for (let wk = 0; wk <= Math.max(lastWeek, 1); wk++) {
+        cum2 += Number(actuals[wk]) || 0;
+        const netVal = Math.max(0, cum2 - totalSpent);
+        const xx = x(wk), yy = y(netVal);
+        if (!started) { ctx.moveTo(xx, yy); started = true; } else { ctx.lineTo(xx, yy); }
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#4c6ef5'; ctx.fillRect(padL, 2, 10, 3); ctx.fillStyle = '#333'; ctx.fillText('Target', padL + 14, 8);
+    ctx.fillStyle = '#1a7f37'; ctx.beginPath(); ctx.arc(padL + 80, 3, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#333'; ctx.fillText('Gross saved', padL + 88, 8);
+    if (totalSpent > 0) {
+      ctx.fillStyle = '#c62828'; ctx.fillRect(padL + 175, 2, 10, 3);
+      ctx.fillStyle = '#333'; ctx.fillText('Net after spend', padL + 189, 8);
+    }
+  }
+
+  async function saveActuals() { try { await storage.set(STORAGE_KEY, JSON.stringify(actuals), false); } catch (e) { console.error(e); } }
+  async function loadActuals() {
+    try { const res = await storage.get(STORAGE_KEY, false); if (res && res.value) actuals = JSON.parse(res.value); } catch (e) {}
+  }
+
+  // ---------- TRAINING LOGIC ----------
+  function weeksToHyrox() {
+    const hyroxWeek = MILESTONES.find(m => m.key === 'hyrox').week;
+    return Math.max(0, hyroxWeek - (currentWeekNumber() + 1));
+  }
+
+  function currentWeekDateRange() {
+    const wk = Math.max(1, Math.min(TOTAL_WEEKS, currentWeekNumber() + 1));
+    const from = new Date(START_DATE.getTime() + (wk - 1) * 7 * 24 * 60 * 60 * 1000);
+    const to = new Date(START_DATE.getTime() + wk * 7 * 24 * 60 * 60 * 1000);
+    return { from, to };
+  }
+
+  function sessionsThisWeek() {
+    const { from, to } = currentWeekDateRange();
+    const inRange = d => { const dt = new Date(d + 'T00:00:00'); return dt >= from && dt < to; };
+    const strengthDates = new Set(lifts.filter(l => l.category === 'strength' && inRange(l.date)).map(l => l.date));
+    const hyroxDates = new Set(lifts.filter(l => l.category === 'hyrox' && inRange(l.date)).map(l => l.date));
+    return { strength: strengthDates.size, hyrox: hyroxDates.size };
+  }
+
+  function estimate1RM(weight, reps) {
+    if (!weight) return null;
+    if (!reps || reps <= 1) return weight;
+    return weight * (1 + reps / 30);
+  }
+
+  function volumeThisWeek() {
+    const { from, to } = currentWeekDateRange();
+    const inRange = d => { const dt = new Date(d + 'T00:00:00'); return dt >= from && dt < to; };
+    return lifts.filter(l => l.category === 'strength' && inRange(l.date) && l.weight && l.sets && l.reps)
+      .reduce((sum, l) => sum + l.weight * l.sets * l.reps, 0);
+  }
+
+  function projectedRaceTime() {
+    let total = 0;
+    let missing = [];
+    RACE_STATIONS.forEach(station => {
+      const entries = lifts.filter(l => l.exercise === station && l.timeSeconds !== null && l.timeSeconds !== undefined)
+        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      if (entries.length) total += entries[0].timeSeconds;
+      else missing.push(station);
+    });
+    const runEntries = lifts.filter(l => (l.exercise === TOTAL_RUN_LABEL || l.exercise === 'Run (1km)') && l.timeSeconds !== null && l.timeSeconds !== undefined)
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    let runTime = null;
+    if (runEntries.length) {
+      const r = runEntries[0];
+      runTime = r.exercise === TOTAL_RUN_LABEL ? r.timeSeconds : r.timeSeconds * 8;
+      total += runTime;
+    } else {
+      missing.push('running');
+    }
+    return { total, missing, hasAny: total > 0 };
+  }
+
+  function renderTrainingHeader() {
+    const el = document.getElementById('trainingHeaderCard');
+    const wks = weeksToHyrox();
+    const sessions = lifts.length;
+    const last = lifts.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
+    const weekCounts = sessionsThisWeek();
+    const strengthPct = Math.min(100, (weekCounts.strength / WEEKLY_TARGET.strength) * 100);
+    const hyroxPct = Math.min(100, (weekCounts.hyrox / WEEKLY_TARGET.hyrox) * 100);
+    const vol = volumeThisWeek();
+    const proj = projectedRaceTime();
+
+    el.innerHTML = `
+      <h2 style="margin-top:0">Hyrox Brisbane countdown</h2>
+      <div class="stat-row"><span class="stat-label">Weeks to race (31 Mar – 4 Apr 2027)</span><span class="big">${wks}</span></div>
+      <div class="stat-row"><span class="stat-label">Sessions logged</span><span class="stat-value">${sessions}</span></div>
+      <div class="stat-row"><span class="stat-label">Last session</span><span class="stat-value">${last ? formatDisplayDate(last.date) + (last.category !== 'rest' ? ' — ' + last.exercise : '') : '—'}</span></div>
+
+      <hr style="border:none; border-top:1px solid #e5e5ea; margin:10px 0;">
+      <div class="stat-row"><span class="stat-label">This week — weightlifting (target ${WEEKLY_TARGET.strength})</span><span class="stat-value">${weekCounts.strength}/${WEEKLY_TARGET.strength}</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${strengthPct}%"></div></div>
+      <div class="stat-row"><span class="stat-label">This week — Hyrox stations (target ${WEEKLY_TARGET.hyrox})</span><span class="stat-value">${weekCounts.hyrox}/${WEEKLY_TARGET.hyrox}</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${hyroxPct}%"></div></div>
+
+      <hr style="border:none; border-top:1px solid #e5e5ea; margin:10px 0;">
+      <div class="stat-row"><span class="stat-label">Volume lifted this week</span><span class="stat-value">${Math.round(vol).toLocaleString()} kg</span></div>
+      <div class="stat-row"><span class="stat-label">Projected race time</span><span class="stat-value">${proj.hasAny ? secondsToTime(proj.total) : '—'}</span></div>
+      ${proj.missing.length ? `<div class="note">Based on your best times so far — still missing: ${proj.missing.join(', ')}.</div>` : `<div class="note">Based on your most recent time for each station and your running split.</div>`}
+    `;
+  }
+
+  function allExercisesFor(category) {
+    const builtin = category === 'strength' ? STRENGTH_EXERCISES : HYROX_EXERCISES;
+    const custom = customExercises[category] || [];
+    return [...builtin, ...custom.filter(c => !builtin.includes(c))];
+  }
+
+  function populateExerciseDatalist() {
+    const category = document.getElementById('liftCategory').value;
+    const list = allExercisesFor(category);
+    document.getElementById('exerciseOptions').innerHTML = list.map(ex => `<option value="${ex}"></option>`).join('');
+  }
+
+  function renderLiftMetricFields() {
+    const cat = document.getElementById('liftCategory').value;
+    const el = document.getElementById('liftMetricFields');
+    if (cat === 'strength') {
+      el.innerHTML = `
+        <div><label>Weight (kg)</label><input type="number" id="liftWeight" placeholder="e.g. 100"></div>
+        <div><label>Sets</label><input type="number" id="liftSets" placeholder="e.g. 5"></div>
+        <div><label>Reps</label><input type="number" id="liftReps" placeholder="e.g. 5"></div>
+      `;
+    } else {
+      el.innerHTML = `
+        <div><label>Time (mm:ss, optional)</label><input type="text" id="liftTime" placeholder="e.g. 3:45"></div>
+        <div><label>Weight/load (kg, optional)</label><input type="number" id="liftWeight" placeholder="e.g. 40"></div>
+      `;
+    }
+  }
+
+  function timeToSeconds(str) {
+    if (!str) return null;
+    const parts = str.split(':').map(Number);
+    if (parts.some(isNaN)) return null;
+    if (parts.length === 2) return parts[0] * 60 + parts[1];
+    if (parts.length === 1) return parts[0];
+    return null;
+  }
+  function secondsToTime(s) {
+    if (s === null || s === undefined) return '';
+    const m = Math.floor(s / 60), sec = Math.round(s % 60);
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  function isPR(entry) {
+    const prior = lifts.filter(l => l.exercise === entry.exercise && l.id !== entry.id);
+    if (entry.weight !== null && entry.weight !== undefined) {
+      const priorMax = prior.reduce((max, l) => (l.weight !== null && l.weight !== undefined && l.weight > max ? l.weight : max), -Infinity);
+      if (entry.weight > priorMax) return true;
+    }
+    if (entry.timeSeconds !== null && entry.timeSeconds !== undefined) {
+      const priorMin = prior.reduce((min, l) => (l.timeSeconds !== null && l.timeSeconds !== undefined && l.timeSeconds < min ? l.timeSeconds : min), Infinity);
+      if (entry.timeSeconds < priorMin) return true;
+    }
+    return false;
+  }
+
+  function renderPendingSession() {
+    const el = document.getElementById('pendingSessionList');
+    const note = document.getElementById('sessionNote');
+    if (!pendingSession.length) {
+      el.innerHTML = '';
+      note.textContent = 'Add each exercise you did today, then hit "Save session" to log them all at once.';
+      return;
+    }
+    el.innerHTML = `<div class="note" style="margin-bottom:6px;">This session so far:</div>` + pendingSession.map((e, i) => {
+      const metrics = [];
+      if (e.weight !== null && e.weight !== undefined) metrics.push(`${e.weight}kg`);
+      if (e.sets) metrics.push(`${e.sets}x${e.reps || '?'}`);
+      if (e.timeSeconds !== null && e.timeSeconds !== undefined) metrics.push(secondsToTime(e.timeSeconds));
+      return `<div class="expense-row">
+        <span class="desc">
+          <span class="cat-tag cat-${e.category}">${e.category === 'strength' ? 'Strength' : 'Hyrox'}</span>
+          ${e.exercise}
+          <div class="expense-meta">${metrics.join(' · ')}${e.notes ? ' · ' + e.notes : ''}</div>
+        </span>
+        <button class="del-btn" data-idx="${i}" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+    note.textContent = `${pendingSession.length} exercise${pendingSession.length > 1 ? 's' : ''} ready — hit "Save session" to log them.`;
+    el.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        pendingSession.splice(Number(btn.dataset.idx), 1);
+        renderPendingSession();
+      });
+    });
+  }
+
+  function renderLiftHistory() {
+    const el = document.getElementById('liftHistory');
+    const sorted = lifts.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    if (!sorted.length) { el.innerHTML = '<div class="note">No sessions logged yet.</div>'; return; }
+    el.innerHTML = sorted.map(l => {
+      if (l.category === 'rest') {
+        return `<div class="expense-row">
+          <span class="desc">
+            <span class="cat-tag cat-rest">Rest</span>
+            Rest day
+            <div class="expense-meta">${formatDisplayDate(l.date)}${l.notes ? ' · ' + l.notes : ''}</div>
+          </span>
+          <button class="del-btn" data-id="${l.id}" title="Remove">✕</button>
+        </div>`;
+      }
+      const metrics = [];
+      if (l.weight !== null && l.weight !== undefined) metrics.push(`${l.weight}kg`);
+      if (l.sets) metrics.push(`${l.sets}x${l.reps || '?'}`);
+      if (l.category === 'strength' && l.weight && l.reps && l.reps > 1) {
+        metrics.push(`est 1RM ${Math.round(estimate1RM(l.weight, l.reps))}kg`);
+      }
+      if (l.category === 'strength' && l.weight && l.sets && l.reps) {
+        metrics.push(`vol ${(l.weight * l.sets * l.reps).toLocaleString()}kg`);
+      }
+      if (l.timeSeconds !== null && l.timeSeconds !== undefined) metrics.push(secondsToTime(l.timeSeconds));
+      const pr = isPR(l) ? '<span class="pr-badge">PR 🏆</span>' : '';
+      const raceTag = l.isRaceSim ? '<span class="pr-badge" style="background:#e0edff; color:#1d4ed8;">Race sim</span>' : '';
+      return `<div class="expense-row">
+        <span class="desc">
+          <span class="cat-tag cat-${l.category}">${l.category === 'strength' ? 'Strength' : 'Hyrox'}</span>
+          ${l.exercise}${pr}${raceTag}
+          <div class="expense-meta">${formatDisplayDate(l.date)} · ${metrics.join(' · ')}${l.notes ? ' · ' + l.notes : ''}</div>
+        </span>
+        <button class="del-btn" data-id="${l.id}" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        lifts = lifts.filter(l => String(l.id) !== String(btn.dataset.id));
+        await saveLifts(); renderTrainingAll();
+      });
+    });
+  }
+
+  function populateProgressSelect() {
+    const sel = document.getElementById('progressExercise');
+    const exercisesLogged = [...new Set(lifts.filter(l => l.category !== 'rest').map(l => l.exercise))];
+    const all = [...STRENGTH_EXERCISES, ...HYROX_EXERCISES, ...(customExercises.strength || []), ...(customExercises.hyrox || []), TOTAL_RUN_LABEL];
+    const ordered = [...new Set(all)].filter(e => exercisesLogged.includes(e));
+    if (!progressExerciseSel && ordered.length) progressExerciseSel = ordered[0];
+    sel.innerHTML = ordered.length
+      ? ordered.map(e => `<option value="${e}" ${e === progressExerciseSel ? 'selected' : ''}>${e}</option>`).join('')
+      : '<option>No sessions logged yet</option>';
+    sel.onchange = () => { progressExerciseSel = sel.value; renderLiftChart(); };
+  }
+
+  function renderLiftChart() {
+    populateProgressSelect();
+    const canvas = document.getElementById('liftChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const cssWidth = canvas.clientWidth || 640;
+    const cssHeight = 200;
+    canvas.width = cssWidth * dpr; canvas.height = cssHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+    const note = document.getElementById('liftChartNote');
+
+    const entries = lifts.filter(l => l.exercise === progressExerciseSel).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    if (!entries.length) { note.textContent = 'Log a few sessions for this exercise to see a trend.'; return; }
+
+    const usesTime = entries.some(e => e.timeSeconds !== null && e.timeSeconds !== undefined);
+    const usesEst1RM = !usesTime && entries.some(e => e.reps && e.reps > 1);
+    const metricOf = e => usesTime ? e.timeSeconds : (usesEst1RM ? estimate1RM(e.weight, e.reps) : e.weight);
+    const values = entries.map(metricOf).filter(v => v !== null && v !== undefined);
+    if (!values.length) { note.textContent = 'No numeric data logged for this exercise yet.'; return; }
+    note.textContent = usesTime ? 'Lower is better (time).' : (usesEst1RM ? 'Higher is better (estimated 1RM, kg, via reps × weight).' : 'Higher is better (weight, kg).');
+
+    const minV = Math.min(...values), maxV = Math.max(...values);
+    const pad = (maxV - minV) * 0.15 || 5;
+    const loY = minV - pad, hiY = maxV + pad;
+    const padL = 50, padB = 24, padT = 10, padR = 10;
+    const w = cssWidth - padL - padR, h = cssHeight - padT - padB;
+    function x(i) { return entries.length > 1 ? padL + (i / (entries.length - 1)) * w : padL + w / 2; }
+    function y(val) { return padT + h - ((val - loY) / (hiY - loY)) * h; }
+
+    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + h); ctx.lineTo(padL + w, padT + h); ctx.stroke();
+
+    ctx.fillStyle = '#888'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 3; i++) {
+      const val = loY + ((hiY - loY) / 3) * i;
+      const label = usesTime ? secondsToTime(val) : Math.round(val);
+      ctx.fillText(label, padL - 6, y(val) + 3);
+    }
+
+    ctx.strokeStyle = '#4c6ef5'; ctx.lineWidth = 2; ctx.beginPath();
+    entries.forEach((e, i) => {
+      const v = metricOf(e); if (v === null || v === undefined) return;
+      const xx = x(i), yy = y(v);
+      if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+    });
+    ctx.stroke();
+
+    ctx.fillStyle = '#4c6ef5';
+    entries.forEach((e, i) => {
+      const v = metricOf(e); if (v === null || v === undefined) return;
+      const xx = x(i), yy = y(v);
+      ctx.beginPath(); ctx.arc(xx, yy, 3, 0, Math.PI * 2); ctx.fill();
+    });
+  }
+
+  async function saveLifts() { try { await storage.set(LIFT_KEY, JSON.stringify(lifts), false); } catch (e) { console.error(e); } }
+  async function saveCustomExercises() { try { await storage.set(CUSTOM_EX_KEY, JSON.stringify(customExercises), false); } catch (e) { console.error(e); } }
+  async function loadCustomExercises() {
+    try {
+      const res = await storage.get(CUSTOM_EX_KEY, false);
+      if (res && res.value) customExercises = JSON.parse(res.value);
+    } catch (e) { customExercises = { strength: [], hyrox: [] }; }
+  }
+  async function loadLifts() {
+    try { const res = await storage.get(LIFT_KEY, false); if (res && res.value) lifts = JSON.parse(res.value); } catch (e) { lifts = []; }
+  }
+
+  function renderTrainingReminderBanner() {
+    const el = document.getElementById('trainingReminderBanner');
+    const trainingLifts = lifts.filter(l => l.category !== 'rest');
+    if (!trainingLifts.length) {
+      el.className = 'banner neutral';
+      el.innerHTML = `👋 No training sessions logged yet — log your first session below.`;
+      return;
+    }
+    const last = trainingLifts.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
+    const lastDate = new Date(last.date + 'T00:00:00');
+    const daysSince = Math.floor((Date.now() - lastDate.getTime()) / (24 * 60 * 60 * 1000));
+    if (daysSince <= 1) {
+      el.className = 'banner ok';
+      el.innerHTML = `✅ On track — last session logged ${daysSince === 0 ? 'today' : 'yesterday'}.`;
+    } else if (daysSince <= 3) {
+      el.className = 'banner warn';
+      el.innerHTML = `⏰ ${daysSince} days since your last session (${formatDisplayDate(last.date)}) — get one in soon.`;
+    } else {
+      el.className = 'banner bad';
+      el.innerHTML = `⚠️ ${daysSince} days since your last session (${formatDisplayDate(last.date)}) — training's gone quiet, worth getting back into it.`;
+    }
+  }
+
+  function updateCompareNote() {
+    const note = document.getElementById('compareNote');
+    const category = document.getElementById('liftCategory').value;
+    const exercise = document.getElementById('liftExercise').value.trim();
+    if (!note || !exercise) { if (note) note.textContent = ''; return; }
+    const prior = lifts.filter(l => l.exercise === exercise && l.category === category)
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
+    if (!prior) { note.textContent = 'First time logging this one — no comparison yet.'; return; }
+    if (category === 'strength') {
+      const weightEl = document.getElementById('liftWeight');
+      const curWeight = weightEl && weightEl.value ? Number(weightEl.value) : null;
+      if (curWeight !== null && prior.weight !== null && prior.weight !== undefined) {
+        const diff = curWeight - prior.weight;
+        const sign = diff > 0 ? '+' : '';
+        note.textContent = `Last time: ${prior.weight}kg on ${formatDisplayDate(prior.date)} (${sign}${diff}kg now).`;
+      } else {
+        note.textContent = `Last time: ${prior.weight ? prior.weight + 'kg' : '—'} on ${formatDisplayDate(prior.date)}.`;
+      }
+    } else {
+      const timeEl = document.getElementById('liftTime');
+      const curSecs = timeEl && timeEl.value ? timeToSeconds(timeEl.value.trim()) : null;
+      if (curSecs !== null && prior.timeSeconds !== null && prior.timeSeconds !== undefined) {
+        const diff = curSecs - prior.timeSeconds;
+        const sign = diff > 0 ? '+' : '';
+        note.textContent = `Last time: ${secondsToTime(prior.timeSeconds)} on ${formatDisplayDate(prior.date)} (${sign}${secondsToTime(Math.abs(diff))} ${diff <= 0 ? 'faster' : 'slower'} now).`;
+      } else {
+        note.textContent = `Last time: ${prior.timeSeconds !== null && prior.timeSeconds !== undefined ? secondsToTime(prior.timeSeconds) : '—'} on ${formatDisplayDate(prior.date)}.`;
+      }
+    }
+  }
+
+  function renderSessionTypeTabs() {
+    const types = [
+      { key: 'training', label: 'Training' },
+      { key: 'rest', label: 'Rest day' },
+      { key: 'race_sim', label: 'Race simulation' },
+    ];
+    document.getElementById('sessionTypeTabs').innerHTML = types.map(t =>
+      `<button class="tab-btn ${t.key === sessionType ? 'active' : ''}" data-type="${t.key}">${t.label}</button>`
+    ).join('');
+    document.querySelectorAll('#sessionTypeTabs .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sessionType = btn.dataset.type;
+        renderSessionTypeTabs();
+        document.getElementById('trainingModeBody').style.display = sessionType === 'training' ? 'block' : 'none';
+        document.getElementById('restModeBody').style.display = sessionType === 'rest' ? 'block' : 'none';
+        document.getElementById('raceSimModeBody').style.display = sessionType === 'race_sim' ? 'block' : 'none';
+        if (sessionType === 'race_sim') renderRaceSimFields();
+      });
+    });
+  }
+
+  function renderRaceSimFields() {
+    const el = document.getElementById('raceSimFields');
+    el.innerHTML = RACE_STATIONS.map(s => `
+      <div><label>${s}</label><input type="text" class="race-sim-input" data-station="${s}" placeholder="mm:ss"></div>
+    `).join('') + `<div><label>${TOTAL_RUN_LABEL}</label><input type="text" id="raceSimRun" placeholder="mm:ss"></div>`;
+  }
+
+  function renderTemplateOptions() {
+    const sel = document.getElementById('templateSelect');
+    sel.innerHTML = '<option value="">Load a template…</option>' + templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  }
+
+  function renderTrainingAll() {
+    renderTrainingReminderBanner();
+    renderTrainingHeader();
+    renderLiftHistory();
+    renderLiftChart();
+  }
+
+  function setupTrainingForm() {
+    const catSel = document.getElementById('liftCategory');
+    const exInput = document.getElementById('liftExercise');
+    populateExerciseDatalist();
+    renderLiftMetricFields();
+    document.getElementById('sessionDate').value = new Date().toISOString().slice(0, 10);
+    renderPendingSession();
+    renderSessionTypeTabs();
+    renderTemplateOptions();
+
+    catSel.addEventListener('change', () => {
+      populateExerciseDatalist();
+      renderLiftMetricFields();
+      exInput.value = '';
+      updateCompareNote();
+    });
+    exInput.addEventListener('input', updateCompareNote);
+    document.getElementById('liftMetricFields').addEventListener('input', updateCompareNote);
+
+    document.getElementById('addLiftBtn').addEventListener('click', async () => {
+      const category = catSel.value;
+      const exercise = exInput.value.trim();
+      if (!exercise) return;
+      const notes = document.getElementById('liftNotes').value.trim();
+      let weight = null, sets = null, reps = null, timeSeconds = null;
+      if (category === 'strength') {
+        weight = document.getElementById('liftWeight').value ? Number(document.getElementById('liftWeight').value) : null;
+        sets = document.getElementById('liftSets').value ? Number(document.getElementById('liftSets').value) : null;
+        reps = document.getElementById('liftReps').value ? Number(document.getElementById('liftReps').value) : null;
+      } else {
+        const timeStr = document.getElementById('liftTime').value.trim();
+        timeSeconds = timeStr ? timeToSeconds(timeStr) : null;
+        weight = document.getElementById('liftWeight').value ? Number(document.getElementById('liftWeight').value) : null;
+      }
+
+      const known = allExercisesFor(category);
+      if (!known.includes(exercise)) {
+        customExercises[category] = customExercises[category] || [];
+        customExercises[category].push(exercise);
+        await saveCustomExercises();
+        populateExerciseDatalist();
+      }
+
+      pendingSession.push({ category, exercise, weight, sets, reps, timeSeconds, notes });
+      renderPendingSession();
+
+      exInput.value = '';
+      document.getElementById('liftNotes').value = '';
+      renderLiftMetricFields();
+
+      // step through a loaded template automatically
+      if (templateQueue.length) {
+        const next = templateQueue.shift();
+        catSel.value = next.category;
+        populateExerciseDatalist();
+        renderLiftMetricFields();
+        exInput.value = next.exercise;
+        updateCompareNote();
+      } else {
+        updateCompareNote();
+      }
+    });
+
+    document.getElementById('saveSessionBtn').addEventListener('click', async () => {
+      if (!pendingSession.length) return;
+      const date = document.getElementById('sessionDate').value || new Date().toISOString().slice(0, 10);
+      pendingSession.forEach(e => { lifts.push({ id: Date.now() + Math.random(), date, ...e }); });
+      const lastExercise = pendingSession[pendingSession.length - 1].exercise;
+      pendingSession = [];
+      templateQueue = [];
+      await saveLifts();
+      progressExerciseSel = lastExercise;
+      renderPendingSession();
+      renderTrainingAll();
+      renderDashboard();
+    });
+
+    document.getElementById('clearSessionBtn').addEventListener('click', () => {
+      if (!pendingSession.length) return;
+      if (confirm('Clear this session\'s staged exercises? (Nothing saved yet, so this just clears the list.)')) {
+        pendingSession = [];
+        templateQueue = [];
+        renderPendingSession();
+      }
+    });
+
+    document.getElementById('resetLiftBtn').addEventListener('click', async () => {
+      if (confirm('Clear all logged training sessions?')) { lifts = []; await saveLifts(); renderTrainingAll(); renderDashboard(); }
+    });
+
+    // Templates
+    document.getElementById('saveTemplateBtn').addEventListener('click', async () => {
+      if (!pendingSession.length) { alert('Add at least one exercise to this session before saving it as a template.'); return; }
+      const name = prompt('Name this template (e.g. "Leg day", "Hyrox sim block"):');
+      if (!name) return;
+      const uniqueExercises = [];
+      const seen = new Set();
+      pendingSession.forEach(e => {
+        const key = e.category + '|' + e.exercise;
+        if (!seen.has(key)) { seen.add(key); uniqueExercises.push({ category: e.category, exercise: e.exercise }); }
+      });
+      templates.push({ id: Date.now(), name, exercises: uniqueExercises });
+      await saveTemplates();
+      renderTemplateOptions();
+    });
+
+    document.getElementById('loadTemplateBtn').addEventListener('click', () => {
+      const id = document.getElementById('templateSelect').value;
+      if (!id) return;
+      const tpl = templates.find(t => String(t.id) === String(id));
+      if (!tpl || !tpl.exercises.length) return;
+      templateQueue = tpl.exercises.slice(1);
+      const first = tpl.exercises[0];
+      catSel.value = first.category;
+      populateExerciseDatalist();
+      renderLiftMetricFields();
+      exInput.value = first.exercise;
+      updateCompareNote();
+    });
+
+    // Rest day
+    document.getElementById('saveRestBtn').addEventListener('click', async () => {
+      const date = document.getElementById('sessionDate').value || new Date().toISOString().slice(0, 10);
+      const notes = document.getElementById('restNotes').value.trim();
+      lifts.push({ id: Date.now() + Math.random(), date, category: 'rest', exercise: 'Rest day', weight: null, sets: null, reps: null, timeSeconds: null, notes });
+      await saveLifts();
+      document.getElementById('restNotes').value = '';
+      renderTrainingAll();
+      renderDashboard();
+    });
+
+    // Race simulation
+    document.getElementById('saveRaceSimBtn').addEventListener('click', async () => {
+      const date = document.getElementById('sessionDate').value || new Date().toISOString().slice(0, 10);
+      const inputs = document.querySelectorAll('.race-sim-input');
+      let anyLogged = false;
+      let total = 0;
+      inputs.forEach(inp => {
+        const secs = timeToSeconds(inp.value.trim());
+        if (secs !== null) {
+          lifts.push({ id: Date.now() + Math.random(), date, category: 'hyrox', exercise: inp.dataset.station, weight: null, sets: null, reps: null, timeSeconds: secs, notes: '', isRaceSim: true });
+          total += secs; anyLogged = true;
+        }
+      });
+      const runVal = document.getElementById('raceSimRun').value.trim();
+      const runSecs = timeToSeconds(runVal);
+      if (runSecs !== null) {
+        lifts.push({ id: Date.now() + Math.random(), date, category: 'hyrox', exercise: TOTAL_RUN_LABEL, weight: null, sets: null, reps: null, timeSeconds: runSecs, notes: '', isRaceSim: true });
+        total += runSecs; anyLogged = true;
+      }
+      const note = document.getElementById('raceSimNote');
+      if (!anyLogged) { note.textContent = 'Enter at least one time before saving.'; return; }
+      await saveLifts();
+      note.textContent = `Saved — total simulated time: ${secondsToTime(total)}.`;
+      document.querySelectorAll('.race-sim-input').forEach(i => i.value = '');
+      document.getElementById('raceSimRun').value = '';
+      renderTrainingAll();
+      renderDashboard();
+    });
+  }
+
+  async function saveTemplates() { try { await storage.set(TEMPLATE_KEY, JSON.stringify(templates), false); } catch (e) { console.error(e); } }
+  async function loadTemplates() {
+    try { const res = await storage.get(TEMPLATE_KEY, false); if (res && res.value) templates = JSON.parse(res.value); } catch (e) { templates = []; }
+  }
+
+
+
+  // ---------- NUTRITION ----------
+  function dayTotal(entry) {
+    if (!entry) return 0;
+    return MEAL_SLOTS.reduce((sum, s) => sum + (entry[s.key] && entry[s.key].cals ? Number(entry[s.key].cals) : 0), 0);
+  }
+
+  function renderNutritionSummary() {
+    const el = document.getElementById('nutritionSummaryCard');
+    const dates = Object.keys(meals).sort((a, b) => b.localeCompare(a));
+    const today = new Date().toISOString().slice(0, 10);
+    const todayTotal = meals[today] ? dayTotal(meals[today]) : null;
+    const last7 = dates.slice(0, 7);
+    const avg7 = last7.length ? Math.round(last7.reduce((s, d) => s + dayTotal(meals[d]), 0) / last7.length) : null;
+    const sortedWeights = weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+    const latestWeight = sortedWeights.length ? sortedWeights[sortedWeights.length - 1] : null;
+    const firstWeight = sortedWeights.length ? sortedWeights[0] : null;
+    const weightChange = (latestWeight && firstWeight && latestWeight !== firstWeight) ? (latestWeight.weight - firstWeight.weight) : null;
+
+    el.innerHTML = `
+      <h2 style="margin-top:0">Nutrition summary</h2>
+      <div class="stat-row"><span class="stat-label">Today's calories logged</span><span class="stat-value">${todayTotal !== null ? todayTotal.toLocaleString() + ' kcal' : '—'}</span></div>
+      <div class="stat-row"><span class="stat-label">Avg daily calories (last ${last7.length || 0} logged day${last7.length === 1 ? '' : 's'})</span><span class="stat-value">${avg7 !== null ? avg7.toLocaleString() + ' kcal' : '—'}</span></div>
+      <hr style="border:none; border-top:1px solid #e5e5ea; margin:10px 0;">
+      <div class="stat-row"><span class="stat-label">Latest weight</span><span class="big">${latestWeight ? latestWeight.weight + ' kg' : '—'}</span></div>
+      <div class="stat-row"><span class="stat-label">Change since first log</span><span class="stat-value ${weightChange !== null ? (weightChange <= 0 ? 'good' : 'neutral') : ''}">${weightChange !== null ? (weightChange > 0 ? '+' : '') + weightChange.toFixed(1) + ' kg' : '—'}</span></div>
+    `;
+  }
+
+  function setupMealForm() {
+    const dateEl = document.getElementById('mealDate');
+    dateEl.value = new Date().toISOString().slice(0, 10);
+
+    function loadDateIntoForm(date) {
+      const entry = meals[date] || {};
+      MEAL_SLOTS.forEach(s => {
+        document.getElementById('meal' + capitalize(s.key) + 'Desc').value = entry[s.key] ? entry[s.key].desc || '' : '';
+        document.getElementById('meal' + capitalize(s.key) + 'Cals').value = entry[s.key] && entry[s.key].cals !== undefined && entry[s.key].cals !== null ? entry[s.key].cals : '';
+      });
+      const note = document.getElementById('mealsNote');
+      note.textContent = meals[date] ? `Editing existing meals logged for ${formatDisplayDate(date)}.` : 'Pick a date above with existing meals logged to edit that day.';
+    }
+
+    dateEl.addEventListener('change', () => loadDateIntoForm(dateEl.value));
+
+    document.getElementById('saveMealsBtn').addEventListener('click', async () => {
+      const date = dateEl.value || new Date().toISOString().slice(0, 10);
+      const entry = {};
+      MEAL_SLOTS.forEach(s => {
+        const desc = document.getElementById('meal' + capitalize(s.key) + 'Desc').value.trim();
+        const calsRaw = document.getElementById('meal' + capitalize(s.key) + 'Cals').value;
+        const cals = calsRaw ? Number(calsRaw) : null;
+        if (desc || cals) entry[s.key] = { desc, cals };
+      });
+      meals[date] = entry;
+      await saveMeals();
+      renderNutritionAll();
+    });
+  }
+
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function renderMealHistory() {
+    const el = document.getElementById('mealHistory');
+    const dates = Object.keys(meals).sort((a, b) => b.localeCompare(a));
+    if (!dates.length) { el.innerHTML = '<div class="note">No meals logged yet.</div>'; return; }
+    el.innerHTML = dates.map(date => {
+      const entry = meals[date];
+      const total = dayTotal(entry);
+      const parts = MEAL_SLOTS.filter(s => entry[s.key]).map(s => `${s.label}: ${entry[s.key].desc || '—'}${entry[s.key].cals ? ' (' + entry[s.key].cals + ' kcal)' : ''}`);
+      return `<div class="expense-row" style="align-items:flex-start;">
+        <span class="desc">
+          <strong>${formatDisplayDate(date)}</strong> — ${total.toLocaleString()} kcal total
+          <div class="expense-meta">${parts.join(' · ')}</div>
+        </span>
+        <button class="del-btn" data-date="${date}" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        delete meals[btn.dataset.date];
+        await saveMeals();
+        renderNutritionAll();
+      });
+    });
+  }
+
+  async function saveMeals() { try { await storage.set(MEALS_KEY, JSON.stringify(meals), false); } catch (e) { console.error(e); } }
+  async function loadMeals() {
+    try { const res = await storage.get(MEALS_KEY, false); if (res && res.value) meals = JSON.parse(res.value); } catch (e) { meals = {}; }
+  }
+
+  // ---------- WEIGHT TRACKER ----------
+  function setupWeightForm() {
+    document.getElementById('weightDate').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('addWeightBtn').addEventListener('click', async () => {
+      const date = document.getElementById('weightDate').value || new Date().toISOString().slice(0, 10);
+      const val = Number(document.getElementById('weightValue').value);
+      if (!val) return;
+      const existingIdx = weights.findIndex(w => w.date === date);
+      if (existingIdx >= 0) weights[existingIdx].weight = val;
+      else weights.push({ id: Date.now(), date, weight: val });
+      await saveWeights();
+      document.getElementById('weightValue').value = '';
+      renderNutritionAll();
+    });
+    ['goalStartWeight', 'goalTargetWeight', 'goalHeight', 'goalActivity'].forEach(id => {
+      document.getElementById(id).addEventListener('input', async () => {
+        await saveWeightGoal();
+        renderWeightChart();
+        renderCalorieTarget();
+        renderTomorrowTarget();
+      });
+    });
+  }
+
+  async function saveWeightGoal() {
+    const goal = weightGoalInputs();
+    try { await storage.set(WEIGHT_GOAL_KEY, JSON.stringify(goal), false); } catch (e) { console.error(e); }
+  }
+  async function loadWeightGoal() {
+    try {
+      const res = await storage.get(WEIGHT_GOAL_KEY, false);
+      if (res && res.value) {
+        const goal = JSON.parse(res.value);
+        document.getElementById('goalStartWeight').value = goal.start;
+        document.getElementById('goalTargetWeight').value = goal.target;
+        document.getElementById('goalHeight').value = goal.height;
+        document.getElementById('goalActivity').value = goal.activityMult;
+      }
+    } catch (e) {}
+  }
+
+  function renderWeightHistory() {
+    const el = document.getElementById('weightHistory');
+    const sorted = weights.slice().sort((a, b) => b.date.localeCompare(a.date));
+    if (!sorted.length) { el.innerHTML = '<div class="note">No weight entries logged yet.</div>'; return; }
+    el.innerHTML = sorted.map(w => `
+      <div class="expense-row">
+        <span class="desc">${formatDisplayDate(w.date)}</span>
+        <span class="amt">${w.weight} kg</span>
+        <button class="del-btn" data-id="${w.id}" title="Remove">✕</button>
+      </div>`).join('');
+    el.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        weights = weights.filter(w => String(w.id) !== String(btn.dataset.id));
+        await saveWeights();
+        renderNutritionAll();
+      });
+    });
+  }
+
+  function weekOfDate(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return (d.getTime() - START_DATE.getTime()) / (7 * 24 * 60 * 60 * 1000);
+  }
+
+  function weightGoalInputs() {
+    return {
+      start: Number(document.getElementById('goalStartWeight').value) || 83,
+      target: Number(document.getElementById('goalTargetWeight').value) || 87,
+      height: Number(document.getElementById('goalHeight').value) || 175,
+      activityMult: Number(document.getElementById('goalActivity').value) || 1.725,
+    };
+  }
+
+  function renderWeightChart() {
+    const canvas = document.getElementById('weightChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const cssWidth = canvas.clientWidth || 640;
+    const cssHeight = 200;
+    canvas.width = cssWidth * dpr; canvas.height = cssHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+    const note = document.getElementById('weightChartNote');
+
+    const goal = weightGoalInputs();
+    const japanWeek = MILESTONES.find(m => m.key === 'japan').week;
+    const sorted = weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+
+    note.textContent = sorted.length
+      ? `${sorted.length} entr${sorted.length === 1 ? 'y' : 'ies'} logged. Dashed line = target path to ${goal.target}kg by Japan.`
+      : `No entries yet — dashed line shows the target path from ${goal.start}kg to ${goal.target}kg by Japan (week ${japanWeek}).`;
+
+    const actualValues = sorted.map(w => w.weight);
+    const allValues = [...actualValues, goal.start, goal.target];
+    const minV = Math.min(...allValues), maxV = Math.max(...allValues);
+    const pad = (maxV - minV) * 0.15 || 2;
+    const loY = minV - pad, hiY = maxV + pad;
+    const padL = 50, padB = 24, padT = 22, padR = 10;
+    const w = cssWidth - padL - padR, h = cssHeight - padT - padB;
+
+    function x(week) { return padL + (Math.max(0, Math.min(TOTAL_WEEKS, week)) / TOTAL_WEEKS) * w; }
+    function y(val) { return padT + h - ((val - loY) / (hiY - loY)) * h; }
+
+    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + h); ctx.lineTo(padL + w, padT + h); ctx.stroke();
+
+    ctx.fillStyle = '#888'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 3; i++) {
+      const val = loY + ((hiY - loY) / 3) * i;
+      ctx.fillText(val.toFixed(1), padL - 6, y(val) + 3);
+    }
+
+    // Japan milestone marker
+    ctx.strokeStyle = '#f0d78a'; ctx.beginPath();
+    ctx.moveTo(x(japanWeek), padT); ctx.lineTo(x(japanWeek), padT + h); ctx.stroke();
+    ctx.fillStyle = '#b8860b'; ctx.textAlign = 'center'; ctx.font = '9px sans-serif';
+    ctx.fillText('Japan', x(japanWeek), padT + h + 14);
+
+    // target dashed line: start -> target by japanWeek, then flat
+    ctx.strokeStyle = '#4c6ef5'; ctx.setLineDash([4, 3]); ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(x(0), y(goal.start));
+    ctx.lineTo(x(japanWeek), y(goal.target));
+    ctx.lineTo(x(TOTAL_WEEKS), y(goal.target));
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // actual points/line
+    if (sorted.length) {
+      ctx.strokeStyle = '#1a7f37'; ctx.lineWidth = 2; ctx.beginPath();
+      sorted.forEach((wgt, i) => {
+        const xx = x(weekOfDate(wgt.date)), yy = y(wgt.weight);
+        if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+      });
+      ctx.stroke();
+      ctx.fillStyle = '#1a7f37';
+      sorted.forEach(wgt => {
+        const xx = x(weekOfDate(wgt.date)), yy = y(wgt.weight);
+        ctx.beginPath(); ctx.arc(xx, yy, 3, 0, Math.PI * 2); ctx.fill();
+      });
+    }
+
+    // legend
+    ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+    ctx.strokeStyle = '#4c6ef5'; ctx.setLineDash([4, 3]); ctx.beginPath();
+    ctx.moveTo(padL, 2); ctx.lineTo(padL + 12, 2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#333'; ctx.fillText('Target', padL + 16, 5);
+    ctx.fillStyle = '#1a7f37'; ctx.beginPath(); ctx.arc(padL + 75, 2, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#333'; ctx.fillText('Actual', padL + 83, 5);
+  }
+
+  function baseCalorieTarget() {
+    const goal = weightGoalInputs();
+    const sortedWeights = weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+    const currentWeight = sortedWeights.length ? sortedWeights[sortedWeights.length - 1].weight : goal.start;
+    const age = 18;
+    const bmr = 10 * currentWeight + 6.25 * goal.height - 5 * age + 5;
+    const tdee = bmr * goal.activityMult;
+
+    const japanWeek = MILESTONES.find(m => m.key === 'japan').week;
+    const weeksRemaining = Math.max(0, japanWeek - (currentWeekNumber() + 1));
+    const remainingGain = Math.max(0, goal.target - currentWeight);
+    const dailySurplus = weeksRemaining > 0 && remainingGain > 0 ? (remainingGain * 7700) / (weeksRemaining * 7) : 0;
+    const suggestedCalories = tdee + dailySurplus;
+    return { goal, currentWeight, tdee, weeksRemaining, remainingGain, dailySurplus, suggestedCalories, sortedWeights };
+  }
+
+  function renderCalorieTarget() {
+    const el = document.getElementById('calorieTargetCard');
+    if (!el) return;
+    const b = baseCalorieTarget();
+    el.innerHTML = `
+      <div class="stat-row"><span class="stat-label">Estimated maintenance (TDEE)</span><span class="stat-value">${Math.round(b.tdee).toLocaleString()} kcal/day</span></div>
+      <div class="stat-row"><span class="stat-label">Weight left to gain</span><span class="stat-value">${b.remainingGain.toFixed(1)} kg over ${b.weeksRemaining} weeks</span></div>
+      <div class="stat-row"><span class="stat-label">Suggested daily surplus</span><span class="stat-value">+${Math.round(b.dailySurplus).toLocaleString()} kcal/day</span></div>
+      <div class="stat-row"><span class="stat-label">Suggested daily intake</span><span class="big">${Math.round(b.suggestedCalories).toLocaleString()} kcal/day</span></div>
+      <div class="note">Based on the Mifflin-St Jeor formula using your most recent logged weight (${b.currentWeight}kg), assumed age 18, and roughly 7,700 kcal per kg of gain. This blends fat and muscle gain — real numbers vary person to person, so treat it as a starting point and adjust based on how your actual weight trend tracks against the target line above.</div>
+    `;
+  }
+
+  function adaptiveTomorrowTarget() {
+    const b = baseCalorieTarget();
+    const MAX_ADJUST = 400; // cap how far the daily nudge can swing, to avoid wild jumps off one or two entries
+
+    // Need at least two weight entries spanning close to a week to estimate a real trend
+    const w = b.sortedWeights;
+    if (w.length < 2) {
+      return { total: b.suggestedCalories, adjustment: 0, hasTrend: false, base: b };
+    }
+    const last = w[w.length - 1];
+    const spanDays = Math.max(1, (new Date(last.date) - new Date(w[0].date)) / (24 * 60 * 60 * 1000));
+    if (spanDays < 5) {
+      return { total: b.suggestedCalories, adjustment: 0, hasTrend: false, base: b };
+    }
+    // use up to the last 21 days of entries for the trend, so old data doesn't dominate
+    const cutoff = new Date(last.date); cutoff.setDate(cutoff.getDate() - 21);
+    const recent = w.filter(e => new Date(e.date) >= cutoff);
+    const first = recent[0];
+    const days = Math.max(1, (new Date(last.date) - new Date(first.date)) / (24 * 60 * 60 * 1000));
+    if (days < 5) {
+      return { total: b.suggestedCalories, adjustment: 0, hasTrend: false, base: b };
+    }
+    const actualRatePerWeek = ((last.weight - first.weight) / days) * 7;
+
+    const japanWeek = MILESTONES.find(m => m.key === 'japan').week;
+    const targetRatePerWeek = japanWeek > 0 ? (b.goal.target - b.goal.start) / japanWeek : 0;
+
+    const shortfallPerWeek = targetRatePerWeek - actualRatePerWeek; // positive = behind pace, need more calories
+    let adjustment = (shortfallPerWeek * 7700) / 7;
+    adjustment = Math.max(-MAX_ADJUST, Math.min(MAX_ADJUST, adjustment));
+
+    return { total: b.suggestedCalories + adjustment, adjustment, hasTrend: true, actualRatePerWeek, targetRatePerWeek, base: b };
+  }
+
+  function renderTomorrowTarget() {
+    const el = document.getElementById('tomorrowTargetCard');
+    if (!el) return;
+    const r = adaptiveTomorrowTarget();
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowLabel = tomorrow.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' });
+
+    let trendLine;
+    if (!r.hasTrend) {
+      trendLine = `<div class="note">Log weight a few more times (spanning at least 5 days) and this will start adjusting automatically based on how your actual gain rate compares to plan.</div>`;
+    } else {
+      const dir = r.adjustment > 20 ? 'behind pace, so nudged up' : r.adjustment < -20 ? 'ahead of pace, so nudged down' : 'right on pace';
+      trendLine = `<div class="note">Your recent trend: ${r.actualRatePerWeek >= 0 ? '+' : ''}${r.actualRatePerWeek.toFixed(2)}kg/week vs a target of +${r.targetRatePerWeek.toFixed(2)}kg/week — you're ${dir} (${r.adjustment >= 0 ? '+' : ''}${Math.round(r.adjustment)} kcal adjustment).</div>`;
+    }
+
+    el.innerHTML = `
+      <h2 style="margin-top:0">Tomorrow's target — ${tomorrowLabel}</h2>
+      <div class="stat-row"><span class="stat-label">Suggested intake</span><span class="big">${Math.round(r.total).toLocaleString()} kcal</span></div>
+      ${trendLine}
+    `;
+  }
+
+  async function saveWeights() { try { await storage.set(WEIGHT_KEY, JSON.stringify(weights), false); } catch (e) { console.error(e); } }
+  async function loadWeights() {
+    try { const res = await storage.get(WEIGHT_KEY, false); if (res && res.value) weights = JSON.parse(res.value); } catch (e) { weights = []; }
+  }
+
+  function renderNutritionAll() {
+    renderTomorrowTarget();
+    renderNutritionSummary();
+    renderMealHistory();
+    renderWeightHistory();
+    renderWeightChart();
+    renderCalorieTarget();
+  }
+
+  // ---------- UNI ----------
+  function knownUnits() {
+    const units = new Set();
+    assignments.forEach(a => a.unit && units.add(a.unit));
+    grades.forEach(g => g.unit && units.add(g.unit));
+    timetable.forEach(t => t.unit && units.add(t.unit));
+    return [...units].sort();
+  }
+
+  function populateUnitDatalist() {
+    document.getElementById('unitOptions').innerHTML = knownUnits().map(u => `<option value="${u}"></option>`).join('');
+  }
+
+  function daysUntil(dateStr) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const due = new Date(dateStr + 'T00:00:00');
+    return Math.round((due - today) / (24 * 60 * 60 * 1000));
+  }
+
+  function renderUniReminderBanner() {
+    const el = document.getElementById('uniReminderBanner');
+    const pending = assignments.filter(a => a.status !== 'submitted').sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+    if (!pending.length) {
+      el.className = 'banner neutral';
+      el.innerHTML = `👋 No upcoming deadlines logged. Add an assignment below to start tracking.`;
+      return;
+    }
+    const next = pending[0];
+    const days = daysUntil(next.dueDate);
+    if (days < 0) {
+      el.className = 'banner bad';
+      el.innerHTML = `⚠️ "${next.name}" (${next.unit}) was due ${formatDisplayDate(next.dueDate)} — ${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'} overdue.`;
+    } else if (days === 0) {
+      el.className = 'banner bad';
+      el.innerHTML = `⚠️ "${next.name}" (${next.unit}) is due today.`;
+    } else if (days <= 3) {
+      el.className = 'banner warn';
+      el.innerHTML = `⏰ "${next.name}" (${next.unit}) is due in ${days} day${days === 1 ? '' : 's'} (${formatDisplayDate(next.dueDate)}).`;
+    } else {
+      el.className = 'banner ok';
+      el.innerHTML = `✅ Next deadline: "${next.name}" (${next.unit}) in ${days} days (${formatDisplayDate(next.dueDate)}).`;
+    }
+  }
+
+  function urgencyTag(dateStr, status) {
+    if (status === 'submitted') return { cls: 'submitted', label: 'Submitted' };
+    const days = daysUntil(dateStr);
+    if (days < 0) return { cls: 'overdue', label: 'Overdue' };
+    if (days <= 3) return { cls: 'duesoon', label: `Due in ${days}d` };
+    return { cls: 'upcoming', label: `Due in ${days}d` };
+  }
+
+  function renderAssignHistory() {
+    const el = document.getElementById('assignHistory');
+    const sorted = assignments.slice().sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+    if (!sorted.length) { el.innerHTML = '<div class="note">No assignments logged yet.</div>'; return; }
+    el.innerHTML = sorted.map(a => {
+      const tag = urgencyTag(a.dueDate, a.status);
+      return `<div class="expense-row">
+        <span class="desc">
+          <span class="cat-tag cat-${tag.cls}">${tag.label}</span>
+          <strong>${a.unit}</strong> — ${a.name}${a.weight ? ' (' + a.weight + '%)' : ''}
+          <div class="expense-meta">Due ${formatDisplayDate(a.dueDate)}${a.notes ? ' · ' + a.notes : ''}</div>
+        </span>
+        <button class="reset-btn" data-toggle="${a.id}" style="padding:3px 8px; font-size:0.72rem;">${a.status === 'submitted' ? 'Mark pending' : 'Mark submitted'}</button>
+        <button class="del-btn" data-id="${a.id}" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('[data-toggle]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const a = assignments.find(x => String(x.id) === String(btn.dataset.toggle));
+        if (a) a.status = a.status === 'submitted' ? 'pending' : 'submitted';
+        await saveAssignments();
+        renderUniAll();
+      });
+    });
+    el.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        assignments = assignments.filter(a => String(a.id) !== String(btn.dataset.id));
+        await saveAssignments();
+        renderUniAll();
+      });
+    });
+  }
+
+  function renderTimetableView() {
+    const el = document.getElementById('timetableView');
+    if (!timetable.length) { el.innerHTML = '<div class="note">No classes added yet.</div>'; return; }
+    el.innerHTML = DAY_ORDER.map(day => {
+      const classes = timetable.filter(t => t.day === day).sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+      if (!classes.length) return '';
+      return `<div style="margin-bottom:10px;">
+        <div class="note" style="font-weight:600; color:#374151; margin-bottom:4px;">${day}</div>
+        ${classes.map(t => `<div class="expense-row">
+          <span class="desc">
+            <span class="cat-tag cat-strength">${t.type}</span>
+            <strong>${t.unit}</strong>
+            <div class="expense-meta">${t.start || '?'}–${t.end || '?'}${t.location ? ' · ' + t.location : ''}</div>
+          </span>
+          <button class="del-btn" data-id="${t.id}" title="Remove">✕</button>
+        </div>`).join('')}
+      </div>`;
+    }).join('') || '<div class="note">No classes added yet.</div>';
+    el.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        timetable = timetable.filter(t => String(t.id) !== String(btn.dataset.id));
+        await saveTimetable();
+        renderUniAll();
+      });
+    });
+  }
+
+  function gradeBand(mark) {
+    if (mark >= 80) return { letter: 'HD', gpa: 4.0, cls: 'hd' };
+    if (mark >= 70) return { letter: 'D', gpa: 3.0, cls: 'd' };
+    if (mark >= 60) return { letter: 'C', gpa: 2.0, cls: 'c' };
+    if (mark >= 50) return { letter: 'P', gpa: 1.0, cls: 'p' };
+    return { letter: 'N', gpa: 0.0, cls: 'n' };
+  }
+
+  function unitAverages() {
+    const byUnit = {};
+    grades.forEach(g => { (byUnit[g.unit] = byUnit[g.unit] || []).push(g); });
+    return Object.entries(byUnit).map(([unit, entries]) => {
+      const totalWeight = entries.reduce((s, e) => s + (e.weight || 0), 0);
+      let avg;
+      if (totalWeight > 0) {
+        avg = entries.reduce((s, e) => s + e.mark * (e.weight || 0), 0) / totalWeight;
+      } else {
+        avg = entries.reduce((s, e) => s + e.mark, 0) / entries.length;
+      }
+      return { unit, avg, band: gradeBand(avg), count: entries.length, totalWeight };
+    });
+  }
+
+  function renderGpaSummary() {
+    const el = document.getElementById('gpaSummary');
+    const units = unitAverages();
+    if (!units.length) { el.innerHTML = '<div class="note">No grades logged yet.</div>'; return; }
+    const overallGpa = units.reduce((s, u) => s + u.band.gpa, 0) / units.length;
+    el.innerHTML = `
+      <div class="stat-row"><span class="stat-label">Overall GPA (simple average across units)</span><span class="big">${overallGpa.toFixed(2)} / 4.0</span></div>
+      <div class="note" style="margin-bottom:8px;">Based on Monash's typical 4.0 scale (HD≥80=4.0, D≥70=3.0, C≥60=2.0, P≥50=1.0, N&lt;50=0). Treats every unit equally — doesn't weight by credit points.</div>
+      ${units.map(u => `
+        <div class="expense-row">
+          <span class="desc">
+            <span class="cat-tag cat-${u.band.cls}">${u.band.letter}</span>
+            <strong>${u.unit}</strong>
+            <div class="expense-meta">${u.avg.toFixed(1)}% avg across ${u.count} assessment${u.count === 1 ? '' : 's'}${u.totalWeight > 0 && u.totalWeight < 100 ? ` (only ${u.totalWeight}% of unit weight logged so far)` : ''}</div>
+          </span>
+          <span class="amt">${u.band.gpa.toFixed(1)}</span>
+        </div>`).join('')}
+    `;
+  }
+
+  function renderGradeHistory() {
+    const el = document.getElementById('gradeHistory');
+    const sorted = grades.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    if (!sorted.length) { el.innerHTML = '<div class="note">No grades logged yet.</div>'; return; }
+    el.innerHTML = sorted.map(g => {
+      const band = gradeBand(g.mark);
+      return `<div class="expense-row">
+        <span class="desc">
+          <span class="cat-tag cat-${band.cls}">${band.letter}</span>
+          <strong>${g.unit}</strong> — ${g.assessment}
+          <div class="expense-meta">${g.mark}%${g.weight ? ' · weight ' + g.weight + '%' : ''} · ${formatDisplayDate(g.date)}</div>
+        </span>
+        <button class="del-btn" data-id="${g.id}" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        grades = grades.filter(g => String(g.id) !== String(btn.dataset.id));
+        await saveGrades();
+        renderUniAll();
+      });
+    });
+  }
+
+  async function saveAssignments() { try { await storage.set(ASSIGN_KEY, JSON.stringify(assignments), false); } catch (e) { console.error(e); } }
+  async function loadAssignments() {
+    try { const res = await storage.get(ASSIGN_KEY, false); if (res && res.value) assignments = JSON.parse(res.value); } catch (e) { assignments = []; }
+  }
+  async function saveTimetable() { try { await storage.set(TIMETABLE_KEY, JSON.stringify(timetable), false); } catch (e) { console.error(e); } }
+  async function loadTimetable() {
+    try { const res = await storage.get(TIMETABLE_KEY, false); if (res && res.value) timetable = JSON.parse(res.value); } catch (e) { timetable = []; }
+  }
+  async function saveGrades() { try { await storage.set(GRADES_KEY, JSON.stringify(grades), false); } catch (e) { console.error(e); } }
+  async function loadGrades() {
+    try { const res = await storage.get(GRADES_KEY, false); if (res && res.value) grades = JSON.parse(res.value); } catch (e) { grades = []; }
+  }
+
+  function renderUniAll() {
+    renderUniReminderBanner();
+    renderAssignHistory();
+    renderTimetableView();
+    renderGpaSummary();
+    renderGradeHistory();
+    populateUnitDatalist();
+  }
+
+  function setupUniForms() {
+    document.getElementById('assignDue').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('gradeDate').value = new Date().toISOString().slice(0, 10);
+    populateUnitDatalist();
+
+    document.getElementById('addAssignBtn').addEventListener('click', async () => {
+      const unit = document.getElementById('assignUnit').value.trim();
+      const name = document.getElementById('assignName').value.trim();
+      const dueDate = document.getElementById('assignDue').value;
+      const weight = document.getElementById('assignWeight').value ? Number(document.getElementById('assignWeight').value) : null;
+      const notes = document.getElementById('assignNotes').value.trim();
+      if (!unit || !name || !dueDate) return;
+      assignments.push({ id: Date.now() + Math.random(), unit, name, dueDate, weight, notes, status: 'pending' });
+      await saveAssignments();
+      document.getElementById('assignName').value = '';
+      document.getElementById('assignWeight').value = '';
+      document.getElementById('assignNotes').value = '';
+      renderUniAll();
+      renderDashboard();
+    });
+
+    document.getElementById('addTTBtn').addEventListener('click', async () => {
+      const unit = document.getElementById('ttUnit').value.trim();
+      const day = document.getElementById('ttDay').value;
+      const start = document.getElementById('ttStart').value;
+      const end = document.getElementById('ttEnd').value;
+      const type = document.getElementById('ttType').value;
+      const location = document.getElementById('ttLocation').value.trim();
+      if (!unit) return;
+      timetable.push({ id: Date.now() + Math.random(), unit, day, start, end, type, location });
+      await saveTimetable();
+      document.getElementById('ttLocation').value = '';
+      renderUniAll();
+    });
+
+    document.getElementById('resetTTBtn').addEventListener('click', async () => {
+      if (confirm('Clear the whole timetable?')) { timetable = []; await saveTimetable(); renderUniAll(); }
+    });
+
+    document.getElementById('addGradeBtn').addEventListener('click', async () => {
+      const unit = document.getElementById('gradeUnit').value.trim();
+      const assessment = document.getElementById('gradeAssessment').value.trim();
+      const mark = Number(document.getElementById('gradeMark').value);
+      const weight = document.getElementById('gradeWeight').value ? Number(document.getElementById('gradeWeight').value) : null;
+      const date = document.getElementById('gradeDate').value || new Date().toISOString().slice(0, 10);
+      if (!unit || !assessment || (!mark && mark !== 0)) return;
+      grades.push({ id: Date.now() + Math.random(), unit, assessment, mark, weight, date });
+      await saveGrades();
+      document.getElementById('gradeAssessment').value = '';
+      document.getElementById('gradeMark').value = '';
+      document.getElementById('gradeWeight').value = '';
+      renderUniAll();
+      renderDashboard();
+    });
+
+    document.getElementById('resetGradesBtn').addEventListener('click', async () => {
+      if (confirm('Clear all logged grades?')) { grades = []; await saveGrades(); renderUniAll(); renderDashboard(); }
+    });
+  }
+
+  // ---------- DASHBOARD ----------
+  function renderDashboard() {
+    const plan = computePlan();
+    const totalSpent = totalSpentAllTrips();
+    const savedSoFar = cumActualSavings();
+    const netAvailable = plan.start + savedSoFar - totalSpent;
+    const stillToFind = Math.max(0, plan.total - netAvailable);
+    const sessions = lifts.length;
+    const wks = weeksToHyrox();
+    const recentPR = lifts.slice().reverse().find(l => isPR(l));
+    const sortedWeights = weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+    const latestWeight = sortedWeights.length ? sortedWeights[sortedWeights.length - 1] : null;
+    const today = new Date().toISOString().slice(0, 10);
+    const todayCals = meals[today] ? dayTotal(meals[today]) : null;
+    const tomorrow = adaptiveTomorrowTarget();
+
+    const pendingAssignments = assignments.filter(a => a.status !== 'submitted').sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+    const nextDeadline = pendingAssignments.length ? pendingAssignments[0] : null;
+    const uniUnits = unitAverages();
+    const overallGpa = uniUnits.length ? uniUnits.reduce((s, u) => s + u.band.gpa, 0) / uniUnits.length : null;
+
+    document.getElementById('dashGrid').innerHTML = `
+      <div class="dash-tile"><div class="label">Net funds available</div><div class="val">${fmt(netAvailable)}</div></div>
+      <div class="dash-tile"><div class="label">Still to find (all trips)</div><div class="val ${stillToFind > 0 ? 'bad' : 'good'}">${fmt(stillToFind)}</div></div>
+      <div class="dash-tile"><div class="label">Weeks to Hyrox Brisbane</div><div class="val">${wks}</div></div>
+      <div class="dash-tile"><div class="label">Training sessions logged</div><div class="val">${sessions}</div></div>
+      <div class="dash-tile"><div class="label">Latest weight</div><div class="val">${latestWeight ? latestWeight.weight + ' kg' : '—'}</div></div>
+      <div class="dash-tile"><div class="label">Tomorrow's calorie target</div><div class="val">${Math.round(tomorrow.total).toLocaleString()} kcal</div></div>
+      <div class="dash-tile"><div class="label">Next deadline</div><div class="val" style="font-size:0.95rem;">${nextDeadline ? nextDeadline.unit + ' — ' + daysUntil(nextDeadline.dueDate) + 'd' : 'None'}</div></div>
+      <div class="dash-tile"><div class="label">Current GPA</div><div class="val">${overallGpa !== null ? overallGpa.toFixed(2) : '—'}</div></div>
+      <div class="dash-tile" style="grid-column: 1 / -1;"><div class="label">Most recent PR</div><div class="val">${recentPR ? recentPR.exercise + ' — ' + formatDisplayDate(recentPR.date) : 'None yet'}</div></div>
+    `;
+  }
+
+  function renderAll() {
+    const plan = computePlan();
+    renderReminderBanner();
+    renderQuickLog();
+    renderSummary(plan);
+    renderExpenses();
+    renderTable(plan);
+    renderChart(plan);
+    renderDashboard();
+  }
+
+  document.querySelectorAll('#startBalance, #costJapan, #costMalaysia, #costBTV, #costUSA, #costHyrox')
+    .forEach(inp => inp.addEventListener('input', renderAll));
+
+  document.getElementById('resetBtn').addEventListener('click', async () => {
+    if (confirm('Clear all logged weekly savings?')) { actuals = {}; await saveActuals(); renderAll(); }
+  });
+
+  (async function init() {
+    renderNav();
+    renderBackendBanner();
+    await loadActuals();
+    await loadExpenses();
+    await loadLifts();
+    await loadCustomExercises();
+    await loadTemplates();
+    await loadMeals();
+    await loadWeights();
+    await loadAssignments();
+    await loadTimetable();
+    await loadGrades();
+    setupTrainingForm();
+    setupMealForm();
+    await loadWeightGoal();
+    setupWeightForm();
+    setupUniForms();
+    renderAll();
+    renderTrainingAll();
+    renderNutritionAll();
+    renderUniAll();
+  })();
+})();
+</script>
